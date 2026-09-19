@@ -1,5 +1,11 @@
 # FocusSync — Realtime Collaborative Pomodoro
 
+A real-time collaborative Pomodoro timer that helps two people focus together and stay synchronized.
+
+## 🌐 Live Demo
+
+**[🚀 Open FocusSync](https://focussync-real-time-collaborative.onrender.com/)** --Click here to Explore the Web......
+
 FocusSync is a real-time collaborative Pomodoro web application built for exactly two users. It allows two partners on different devices/networks to join a private room and share one synchronized Pomodoro timer with instant controls (start, pause, resume, reset, skip, mode switching, custom duration settings, visual toast notifications, and synthesized sound tones).
 
 - **GitHub Repository**: [https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git](https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git)
