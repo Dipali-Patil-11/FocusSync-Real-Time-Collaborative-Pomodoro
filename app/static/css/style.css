@@ -1,0 +1,63 @@
+:root {
+    --bg-main: #0B0D12;
+    --bg-card: #141722;
+    --bg-input: #171B26;
+    --border-color: #252B38;
+    --primary-orange: #FF6B00;
+    --orange-hover: #E05E00;
+    --focus-color: #FF6B00;
+    --short-break-color: #22C55E;
+    --long-break-color: #38BDF8;
+    --text-primary: #F3F4F6;
+    --text-secondary: #7183A5;
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'Outfit', 'Courier New', monospace;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.text-primary-custom { color: var(--text-primary) !important; }
+.text-secondary-custom { color: var(--text-secondary) !important; }
+.text-orange { color: var(--primary-orange) !important; }
+
+.bg-main { background-color: var(--bg-main) !important; }
+.bg-card { background-color: var(--bg-card) !important; }
+.bg-input { background-color: var(--bg-input) !important; }
+
+.border-custom { border: 1px solid var(--border-color) !important; }
+.border-bottom-custom { border-bottom: 1px solid var(--border-color) !important; }
+
+/* Branding */
+.brand-name {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+}
+
+.brand-logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}

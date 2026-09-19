@@ -1,0 +1,43 @@
+name: focussync
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - FLASK_DEBUG=False
+      - SECRET_KEY=focussync-docker-secret-2026
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+      - MYSQL_USER=focussync_user
+      - MYSQL_PASSWORD=focussync_password
+      - MYSQL_DB=focussync_db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: focussync_db
+      MYSQL_USER: focussync_user
+      MYSQL_PASSWORD: focussync_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "focussync_user", "-pfocussync_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+volumes:
+  mysql_data:

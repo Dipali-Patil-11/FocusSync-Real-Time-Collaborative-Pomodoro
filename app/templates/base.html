@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FocusSync — Realtime Collaborative Pomodoro{% endblock %}</title>
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="Share one synchronized Pomodoro timer with a partner in real-time. Private two-person focus rooms for ultimate productivity and accountability.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+<body class="bg-main text-primary-custom">
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1090;"></div>
+
+    <main id="app-root">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Socket.IO JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+
+    <!-- App JavaScript Modules -->
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
