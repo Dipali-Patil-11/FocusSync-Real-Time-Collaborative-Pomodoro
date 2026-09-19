@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: focussync-web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run.py
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: FLASK_DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_HOST
+        sync: false
+      - key: DATABASE_PORT
+        value: "3306"
+      - key: DATABASE_USER
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: DATABASE_NAME
+        value: focussync_db
+    healthCheckPath: /api/health

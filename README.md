@@ -1,55 +1,60 @@
 # FocusSync — Realtime Collaborative Pomodoro
 
-FocusSync is a real-time collaborative Pomodoro web application designed for exactly two users. It enables partners to join a private room and share one synchronized Pomodoro timer with real-time controls (start, pause, resume, reset, skip, mode switching, and custom duration settings).
+FocusSync is a real-time collaborative Pomodoro web application built for exactly two users. It allows two partners on different devices/networks to join a private room and share one synchronized Pomodoro timer with instant controls (start, pause, resume, reset, skip, mode switching, custom duration settings, visual toast notifications, and synthesized sound tones).
+
+- **GitHub Repository**: [https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git](https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git)
 
 ---
 
 ## Table of Contents
-1. [Project Overview](#project-overview)
+1. [Project Overview & Key Highlights](#project-overview--key-highlights)
 2. [Features](#features)
 3. [Technology Stack](#technology-stack)
 4. [Architecture](#architecture)
 5. [Local Setup & Quick Start](#local-setup--quick-start)
-6. [Database Setup & In-Memory Fallback](#database-setup--in-memory-fallback)
-7. [Docker & Docker Compose Instructions](#docker--docker-compose-instructions)
-8. [API Endpoints & Socket.IO Events](#api-endpoints--socketio-events)
-9. [Automated & End-to-End Testing](#automated--end-to-end-testing)
-10. [Deployment & Environment Variables](#deployment--environment-variables)
-11. [Known Limitations](#known-limitations)
+6. [Real-Time Notifications & Sound System](#real-time-notifications--sound-system)
+7. [Database Setup & In-Memory Fallback](#database-setup--in-memory-fallback)
+8. [Cloud & Render Deployment](#cloud--render-deployment)
+9. [Docker & Docker Compose Instructions](#docker--docker-compose-instructions)
+10. [API Endpoints & Socket.IO Events](#api-endpoints--socketio-events)
+11. [Automated & End-to-End Testing](#automated--end-to-end-testing)
+12. [Environment Variables](#environment-variables)
+13. [Known Limitations](#known-limitations)
 
 ---
 
-## Project Overview
+## Project Overview & Key Highlights
 
-FocusSync provides a shared focus experience for study partners, remote work pairs, and productivity buddies.
+FocusSync provides a shared, accountable focus environment for study partners, pair programmers, and remote teammates.
 
-### Key Highlights:
-- **Strict 2-Person Capacity**: Exactly 2 participants per room. Any 3rd participant attempting to join receives a clear "Room Full" notification.
+- **Strict 2-Participant Capacity**: Exactly 2 participants per room. Any 3rd participant attempting to join receives a clear "Room Full" notification.
 - **Server-Authoritative Timer**: The server controls master timestamps (`started_at`, `target_end_time`, `duration`, `remaining_seconds`, `completed_sessions`), eliminating clock drift between devices.
 - **Client-Side Smooth Rendering**: Clients calculate remaining time locally using server time offset calculations (`server_offset = (server_time * 1000) - Date.now()`), rendering smooth 60fps countdowns and SVG progress animations without spamming 1-second socket events.
 - **Instant Synchronization**: Any action (start, pause, reset, skip, mode change, settings save) taken by one user is broadcast instantly to the other participant via Socket.IO.
+- **Dynamic Origin Invites**: Share links and WebSockets use `window.location.origin` dynamically over HTTPS/HTTP without hardcoded `localhost` dependencies.
 
 ---
 
 ## Features
 
 - **Landing Page**: Modern dark theme with hero explanation, key features list, and tabbed forms for creating or joining a room.
-- **Active Room Interface**: Clean, single-branding layout with room code copy pill, real connection status badge, participant cards (with avatar initials and online/offline status dots), SVG timer circle, and session counters.
+- **Active Room Interface**: Clean layout with room code copy pill, real connection status badge, participant cards (with avatar initials and online/offline status dots), SVG timer circle, and session counters.
 - **Timer Modes**:
-  - **Focus Mode**: Default 25 minutes (Orange accent)
-  - **Short Break Mode**: Default 5 minutes (Green accent)
-  - **Long Break Mode**: Default 15 minutes (Blue accent)
-- **Settings Modal**: Interactive `+` and `-` counters for duration adjustments (Focus 1–60m, Short Break 1–30m, Long Break 1–45m), auto-start transitions toggle, and audio notifications toggle.
-- **Invite Modal**: Quick copy button for shareable invite URL (`http://.../room/<code>`) and 6-character room code.
+  - **Focus Mode**: Default 25 minutes (Orange accent `#FF6B00`)
+  - **Short Break Mode**: Default 5 minutes (Green accent `#22C55E`)
+  - **Long Break Mode**: Default 15 minutes (Blue accent `#38BDF8`)
+- **Real-time Notifications & Sound Tones**: Visual toast notifications and synthesized Web Audio API sound tones for session start, completion, user join, and user leave.
+- **Settings Modal**: Interactive `+` and `-` counters for duration adjustments (Focus 1–60m, Short Break 1–30m, Long Break 1–45m), auto-start transitions toggle, and per-user sound notifications toggle.
+- **Invite Modal**: Quick copy button for shareable invite URL (`https://.../room/<code>`) and 6-character room code.
 
 ---
 
 ## Technology Stack
 
 - **Backend**: Python 3.11+, Flask 3.0+, Flask-SocketIO 5.3+, PyMySQL 1.1+
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Dark Theme Design System), Vanilla JavaScript (Modular Architecture), Bootstrap 5, Socket.IO JavaScript Client 4.7+, SVG
+- **Frontend**: HTML5, Vanilla CSS3 (Custom Dark Theme Design System), Vanilla JavaScript (Modular Architecture), Bootstrap 5, Socket.IO JavaScript Client 4.7+, SVG Ring
 - **Database**: MySQL 8 with Thread-Safe In-Memory Fallback
-- **Deployment**: Docker & Docker Compose
+- **Deployment**: Render Web Service, Docker & Docker Compose
 
 ---
 
@@ -114,6 +119,7 @@ FocusSync/
 │   ├── test_sockets.py
 │   └── test_e2e_two_browsers.py
 ├── Dockerfile & docker-compose.yml
+├── Procfile & render.yaml
 ├── requirements.txt & run.py
 ├── .env.example & .gitignore
 └── README.md
@@ -142,16 +148,32 @@ python run.py
 
 ---
 
+## Real-Time Notifications & Sound System
+
+FocusSync includes a real-time notification engine with Web Audio API sound synthesis:
+
+- **Server-Authoritative Events**:
+  - `timer_started_notification`: Sent when Focus, Short Break, or Long Break starts.
+  - `timer_completed_notification`: Sent when a timer finishes.
+  - `participant_joined`: Sent to room (`include_self=False`) when User 2 joins (`"[USERNAME] joined the focus room"`).
+  - `participant_left`: Sent to remaining user when a participant leaves (`"[USERNAME] left the focus room"`).
+- **Audio Synthesis**: Web Audio API generates double rising chimes, ascending notes, and soft pings without relying on external MP3 URLs.
+- **Autoplay Handling**: Unlocks `AudioContext` automatically on the user's first interaction.
+- **Event Deduplication**: Clients track `event_id`s in a Set to guarantee each notification is rendered exactly once.
+- **Per-User Sound Preference**: Sound toggle setting operates per user browser locally.
+
+---
+
 ## Database Setup & In-Memory Fallback
 
 FocusSync supports two database modes:
 
-1. **MySQL 8 (Production / Docker Mode)**:
-   - Connects to MySQL using PyMySQL.
-   - Initialized using `database/schema.sql`.
+1. **MySQL 8 (Production / Docker / Render Mode)**:
+   - Connects using PyMySQL.
+   - Database tables (`rooms`, `participants`, `timers`, `settings`) initialized via `database/schema.sql`.
 
 2. **In-Memory Fallback (Local Development Mode)**:
-   - Activated automatically if MySQL is offline or not installed.
+   - Activated automatically if MySQL is offline or environment credentials are not provided.
    - Thread-safe dictionary store using `threading.RLock()`.
    - Logs database mode clearly on startup:
      ```
@@ -160,9 +182,24 @@ FocusSync supports two database modes:
 
 ---
 
+## Cloud & Render Deployment
+
+FocusSync is pre-configured for public deployment on platforms like Render:
+
+### Deploying on Render:
+1. Create a **Render Web Service** connected to repository `https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git`.
+2. Build Command: `pip install -r requirements.txt`
+3. Start Command: `python run.py`
+4. Health Check Path: `/api/health`
+5. Configure Environment Variables (`DATABASE_HOST`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_NAME`, `SECRET_KEY`).
+
+The repository includes `render.yaml` for blueprint deployments and `Procfile` for platform execution.
+
+---
+
 ## Docker & Docker Compose Instructions
 
-To spin up the application with a dedicated MySQL 8 database container:
+To run the application with a dedicated MySQL 8 container:
 
 ```bash
 docker compose up --build
@@ -183,14 +220,8 @@ Services started:
 - `GET /api/rooms/<code>`: Fetch current room state and participant metadata
 
 ### Socket.IO Events
-- **Client -> Server**:
-  - `join_room`, `leave_room`, `request_sync`
-  - `timer_start`, `timer_pause`, `timer_resume`, `timer_reset`, `timer_skip`, `timer_change_mode`
-  - `settings_updated`
-- **Server -> Client / Room Broadcast**:
-  - `room_state`, `participant_joined`, `participant_left`, `presence_update`
-  - `timer_start`, `timer_pause`, `timer_resume`, `timer_reset`, `timer_skip`, `timer_mode_changed`
-  - `settings_updated`, `room_full`, `room_error`
+- **Client -> Server**: `join_room`, `leave_room`, `request_sync`, `timer_start`, `timer_pause`, `timer_resume`, `timer_reset`, `timer_skip`, `timer_change_mode`, `settings_updated`
+- **Server -> Client / Room Broadcast**: `room_state`, `participant_joined`, `participant_left`, `presence_update`, `timer_start`, `timer_pause`, `timer_resume`, `timer_reset`, `timer_skip`, `timer_mode_changed`, `timer_started_notification`, `timer_completed_notification`, `settings_updated`, `room_full`, `room_error`
 
 ---
 
@@ -201,38 +232,39 @@ Services started:
 python -m pytest -v
 ```
 
-### 2. Run Real Two-Browser End-to-End Verification Test
-Make sure the server is running on `http://localhost:5000`, then run:
+### 2. Run Real Two-Browser End-to-End Test
+Ensure the server is running on `http://localhost:5000`, then run:
 
 ```bash
 python tests/test_e2e_two_browsers.py
 ```
 
-Tests performed:
+Tests verified:
 - [OK] Server health check
 - [OK] Room creation & socket connection (Browser 1)
-- [OK] Room joining (Browser 2)
-- [OK] Shared timer controls sync (Start, Pause, Resume, Reset, Skip, Mode Change)
-- [OK] Duration settings sync
+- [OK] Room joining & self-exclusion (Browser 2)
+- [OK] Focus, Short Break, and Long Break start notifications
+- [OK] Timer completion notification
+- [OK] Leave notification
 - [OK] 3rd user room full rejection
 
 ---
 
-## Deployment & Environment Variables
+## Environment Variables
 
-Copy `.env.example` to `.env` to configure production environment variables:
+Copy `.env.example` to `.env` to configure environment parameters:
 
 ```env
 PORT=5000
 FLASK_DEBUG=False
 SECRET_KEY=focussync-secret-key-super-secure-2026
 
-# MySQL Credentials (Optional if using In-Memory Fallback)
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=focussync_user
-MYSQL_PASSWORD=focussync_password
-MYSQL_DB=focussync_db
+# Database Configuration (supports both DATABASE_* and MYSQL_* keys)
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USER=focussync_user
+DATABASE_PASSWORD=focussync_password
+DATABASE_NAME=focussync_db
 ```
 
 ---
