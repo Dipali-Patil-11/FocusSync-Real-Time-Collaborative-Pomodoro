@@ -51,10 +51,10 @@ FocusSync provides a shared, accountable focus environment for study partners, p
 
 ## Technology Stack
 
-- **Backend**: Python 3.11+, Flask 3.0+, Flask-SocketIO 5.3+, PyMySQL 1.1+
+- **Backend**: Python 3.11+, Flask 3.0+, Flask-SocketIO 5.3+, Psycopg 3 (`psycopg[binary]` 3.1+)
 - **Frontend**: HTML5, Vanilla CSS3 (Custom Dark Theme Design System), Vanilla JavaScript (Modular Architecture), Bootstrap 5, Socket.IO JavaScript Client 4.7+, SVG Ring
-- **Database**: MySQL 8 with Thread-Safe In-Memory Fallback
-- **Deployment**: Render Web Service, Docker & Docker Compose
+- **Database**: Supabase PostgreSQL (PostgreSQL 15+) with Thread-Safe In-Memory Fallback
+- **Deployment**: Render Web Service, Supabase PostgreSQL, Docker
 
 ---
 
@@ -70,10 +70,11 @@ FocusSync/
 │   │   ├── participant.py
 │   │   ├── timer.py
 │   │   └── settings.py
-│   ├── repositories/        # Repository pattern (Base, MemoryRepo, MySQLRepo)
+│   ├── repositories/        # Repository pattern (Base, MemoryRepo, PostgresRepo)
 │   │   ├── base.py
 │   │   ├── memory_repo.py
-│   │   └── mysql_repo.py
+│   │   ├── postgres_repo.py # PostgreSQL / Supabase repository implementation
+│   │   └── mysql_repo.py    # Backwards-compatible alias to PostgresRepository
 │   ├── services/            # Core business logic
 │   │   ├── room_service.py
 │   │   ├── timer_service.py
@@ -108,7 +109,7 @@ FocusSync/
 │           ├── room.js
 │           ├── modal.js
 │           └── notifications.js
-├── database/                # MySQL 8 schema & initializer
+├── database/                # PostgreSQL / Supabase schema & initializer
 │   ├── schema.sql
 │   └── init_db.py
 ├── tests/                   # Automated Pytest & E2E test scripts
@@ -117,6 +118,7 @@ FocusSync/
 │   ├── test_timer.py
 │   ├── test_routes.py
 │   ├── test_sockets.py
+│   ├── test_postgres_persistence.py
 │   └── test_e2e_two_browsers.py
 ├── Dockerfile & docker-compose.yml
 ├── Procfile & render.yaml
@@ -168,12 +170,14 @@ FocusSync includes a real-time notification engine with Web Audio API sound synt
 
 FocusSync supports two database modes:
 
-1. **MySQL 8 (Production / Docker / Render Mode)**:
-   - Connects using PyMySQL.
-   - Database tables (`rooms`, `participants`, `timers`, `settings`) initialized via `database/schema.sql`.
+1. **PostgreSQL / Supabase (Production Mode)**:
+   - Connects using `psycopg3` (`psycopg[binary]`).
+   - Tables (`rooms`, `participants`, `timers`, `settings`) initialized safely via `database/init_db.py` using `database/schema.sql`.
+   - Requires `DATABASE_SSLMODE=require` for Supabase connections.
+   - **Production Safety Guarantee**: If `DATABASE_HOST` is specified when `FLASK_DEBUG=False`, connection failures will cause startup to log an error and exit rather than silently switching to in-memory fallback.
 
 2. **In-Memory Fallback (Local Development Mode)**:
-   - Activated automatically if MySQL is offline or environment credentials are not provided.
+   - Activated automatically when `DATABASE_HOST` is omitted or empty in local development mode (`FLASK_DEBUG=True`).
    - Thread-safe dictionary store using `threading.RLock()`.
    - Logs database mode clearly on startup:
      ```
@@ -184,14 +188,24 @@ FocusSync supports two database modes:
 
 ## Cloud & Render Deployment
 
-FocusSync is pre-configured for public deployment on platforms like Render:
+FocusSync is pre-configured for public deployment on Render and Supabase PostgreSQL:
 
-### Deploying on Render:
-1. Create a **Render Web Service** connected to repository `https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git`.
-2. Build Command: `pip install -r requirements.txt`
-3. Start Command: `python run.py`
-4. Health Check Path: `/api/health`
-5. Configure Environment Variables (`DATABASE_HOST`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_NAME`, `SECRET_KEY`).
+### Deploying on Render + Supabase:
+1. Create a PostgreSQL Database project on [Supabase](https://supabase.com).
+2. Note your Supabase connection parameters (Host, Database, User, Password, Port 5432).
+3. Create a **Render Web Service** connected to repository `https://github.com/Dipali-Patil-11/FocusSync-Real-Time-Collaborative-Pomodoro.git`.
+4. Build Command: `pip install -r requirements.txt`
+5. Start Command: `python run.py`
+6. Health Check Path: `/api/health`
+7. Configure Environment Variables in Render:
+   - `DATABASE_HOST`: `<your-supabase-db-host>`
+   - `DATABASE_PORT`: `5432`
+   - `DATABASE_USER`: `postgres`
+   - `DATABASE_PASSWORD`: `<your-supabase-db-password>`
+   - `DATABASE_NAME`: `postgres`
+   - `DATABASE_SSLMODE`: `require`
+   - `SECRET_KEY`: `<your-random-secret-key>`
+   - `SOCKETIO_CORS_ORIGINS`: `*` (or your Render service domain)
 
 The repository includes `render.yaml` for blueprint deployments and `Procfile` for platform execution.
 
@@ -199,7 +213,7 @@ The repository includes `render.yaml` for blueprint deployments and `Procfile` f
 
 ## Docker & Docker Compose Instructions
 
-To run the application with a dedicated MySQL 8 container:
+To build and run the web application container locally:
 
 ```bash
 docker compose up --build
@@ -207,14 +221,13 @@ docker compose up --build
 
 Services started:
 - `web`: Flask-SocketIO app on port `5000`
-- `db`: MySQL 8.0 container on port `3306`
 
 ---
 
 ## API Endpoints & Socket.IO Events
 
 ### REST API Endpoints
-- `GET /api/health`: Healthcheck & database mode status (`MySQL 8` or `In-Memory Fallback`)
+- `GET /api/health`: Healthcheck & database status (`PostgreSQL/Supabase` or `In-Memory Fallback`)
 - `POST /api/rooms/create`: Create a new room with username
 - `POST /api/rooms/join`: Join an existing room code with username
 - `GET /api/rooms/<code>`: Fetch current room state and participant metadata
@@ -258,13 +271,15 @@ Copy `.env.example` to `.env` to configure environment parameters:
 PORT=5000
 FLASK_DEBUG=False
 SECRET_KEY=focussync-secret-key-super-secure-2026
+SOCKETIO_CORS_ORIGINS=*
 
-# Database Configuration (supports both DATABASE_* and MYSQL_* keys)
-DATABASE_HOST=localhost
-DATABASE_PORT=3306
-DATABASE_USER=focussync_user
-DATABASE_PASSWORD=focussync_password
-DATABASE_NAME=focussync_db
+# PostgreSQL / Supabase Database Configuration
+DATABASE_HOST=aws-0-us-east-1.pooler.supabase.com
+DATABASE_PORT=5432
+DATABASE_USER=postgres.projectref
+DATABASE_PASSWORD=your_supabase_password
+DATABASE_NAME=postgres
+DATABASE_SSLMODE=require
 ```
 
 ---
@@ -272,3 +287,4 @@ DATABASE_NAME=focussync_db
 ## Known Limitations
 
 - Maximum room capacity is strictly capped at **2 participants** by design. Additional participants will be rejected with a `room_full` status message.
+

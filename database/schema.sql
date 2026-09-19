@@ -1,50 +1,48 @@
-CREATE DATABASE IF NOT EXISTS focussync_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE focussync_db;
+-- FocusSync PostgreSQL / Supabase Schema
 
 -- Rooms table
 CREATE TABLE IF NOT EXISTS rooms (
     room_code VARCHAR(10) PRIMARY KEY,
     creator_token VARCHAR(64) NOT NULL,
     status VARCHAR(20) DEFAULT 'ACTIVE',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Participants table (Max 2 per room)
 CREATE TABLE IF NOT EXISTS participants (
     participant_token VARCHAR(64) PRIMARY KEY,
-    room_code VARCHAR(10) NOT NULL,
+    room_code VARCHAR(10) NOT NULL REFERENCES rooms(room_code) ON DELETE CASCADE,
     username VARCHAR(50) NOT NULL,
     slot INT NOT NULL,
-    is_online TINYINT(1) DEFAULT 1,
+    is_online BOOLEAN DEFAULT TRUE,
     sid VARCHAR(64) NULL,
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (room_code) REFERENCES rooms(room_code) ON DELETE CASCADE,
-    INDEX idx_room_code (room_code)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    joined_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_seen TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_participants_room_code ON participants(room_code);
+CREATE INDEX IF NOT EXISTS idx_participants_sid ON participants(sid);
 
 -- Timers table
 CREATE TABLE IF NOT EXISTS timers (
-    room_code VARCHAR(10) PRIMARY KEY,
+    room_code VARCHAR(10) PRIMARY KEY REFERENCES rooms(room_code) ON DELETE CASCADE,
     mode VARCHAR(20) NOT NULL DEFAULT 'FOCUS',
     status VARCHAR(20) NOT NULL DEFAULT 'IDLE',
     duration INT NOT NULL DEFAULT 1500,
     remaining_seconds INT NOT NULL DEFAULT 1500,
-    started_at DOUBLE NULL,
-    target_end_time DOUBLE NULL,
+    started_at DOUBLE PRECISION NULL,
+    target_end_time DOUBLE PRECISION NULL,
     completed_sessions INT NOT NULL DEFAULT 0,
-    updated_at DOUBLE NOT NULL,
-    FOREIGN KEY (room_code) REFERENCES rooms(room_code) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    updated_at DOUBLE PRECISION NOT NULL
+);
 
 -- Settings table
 CREATE TABLE IF NOT EXISTS settings (
-    room_code VARCHAR(10) PRIMARY KEY,
+    room_code VARCHAR(10) PRIMARY KEY REFERENCES rooms(room_code) ON DELETE CASCADE,
     focus_duration INT NOT NULL DEFAULT 25,
     short_break_duration INT NOT NULL DEFAULT 5,
     long_break_duration INT NOT NULL DEFAULT 15,
-    auto_start TINYINT(1) DEFAULT 0,
-    sound_enabled TINYINT(1) DEFAULT 1,
-    FOREIGN KEY (room_code) REFERENCES rooms(room_code) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    auto_start BOOLEAN DEFAULT FALSE,
+    sound_enabled BOOLEAN DEFAULT TRUE
+);
