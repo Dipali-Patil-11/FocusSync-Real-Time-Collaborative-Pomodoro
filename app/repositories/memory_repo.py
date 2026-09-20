@@ -14,6 +14,8 @@ class MemoryRepository(BaseRepository):
         self._participants: Dict[str, Participant] = {}  # key: participant_token
         self._timers: Dict[str, TimerState] = {}          # key: session_code
         self._settings: Dict[str, SessionSettings] = {}      # key: session_code
+        self._users: Dict[str, any] = {}                     # key: user_id
+        self._history: Dict[str, any] = {}                   # key: history_id
 
     def create_session(self, session: Session) -> Session:
         with self._lock:
@@ -92,3 +94,63 @@ class MemoryRepository(BaseRepository):
         with self._lock:
             self._settings[settings.session_code] = settings
             return settings
+
+    # User operations
+    def create_user(self, user):
+        with self._lock:
+            self._users[user.user_id] = user
+            return user
+
+    def get_user_by_id(self, user_id: str):
+        with self._lock:
+            return self._users.get(user_id)
+
+    def get_user_by_email(self, email: str):
+        with self._lock:
+            email_lower = email.lower()
+            for u in self._users.values():
+                if u.email.lower() == email_lower:
+                    return u
+            return None
+
+    def get_user_by_username(self, username: str):
+        with self._lock:
+            u_lower = username.lower()
+            for u in self._users.values():
+                if u.username.lower() == u_lower:
+                    return u
+            return None
+
+    def update_user(self, user):
+        with self._lock:
+            self._users[user.user_id] = user
+            return user
+
+    def clear_user_id_from_participants(self, user_id: str) -> List[str]:
+        with self._lock:
+            affected_codes = set()
+            for p in self._participants.values():
+                if p.user_id == user_id:
+                    p.user_id = None
+                    affected_codes.add(p.session_code)
+            return list(affected_codes)
+
+    # History operations
+    def save_user_history(self, history):
+        with self._lock:
+            self._history[history.history_id] = history
+            return history
+
+    def get_user_history(self, user_id: str, limit: int = 50, offset: int = 0):
+        with self._lock:
+            user_entries = [h for h in self._history.values() if h.user_id == user_id]
+            # Sort descending by joined_at
+            user_entries.sort(key=lambda x: x.joined_at, reverse=True)
+            return user_entries[offset:offset + limit]
+
+    def get_user_history_entry(self, user_id: str, session_id: str):
+        with self._lock:
+            for h in self._history.values():
+                if h.user_id == user_id and h.session_id == session_id:
+                    return h
+            return None

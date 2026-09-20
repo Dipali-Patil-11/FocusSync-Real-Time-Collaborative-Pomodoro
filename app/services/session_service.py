@@ -16,7 +16,7 @@ class SessionService:
         self.timer_service = TimerService(repository)
         self.settings_service = SettingsService(repository)
 
-    def create_session(self, username: str) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
+    def create_session(self, username: str, user_id: Optional[str] = None) -> Tuple[bool, str, Optional[Dict[str, Any]]]:
         valid_user, user_msg = validate_username(username)
         if not valid_user:
             return False, user_msg, None
@@ -30,7 +30,7 @@ class SessionService:
             return False, "Failed to generate unique session code", None
 
         creator_token = str(uuid.uuid4())
-        session = Session(session_code=code, creator_token=creator_token)
+        session = Session(session_code=code, creator_token=creator_token, creator_user_id=user_id)
         self.repo.create_session(session)
 
         # Create slot 1 participant
@@ -39,9 +39,15 @@ class SessionService:
             session_code=code,
             username=user_msg,
             slot=1,
-            is_online=True
+            is_online=True,
+            user_id=user_id
         )
         self.repo.add_participant(participant)
+
+        # Record history entry if logged in
+        if user_id:
+            from app.services.history_service import HistoryService
+            HistoryService(self.repo).record_session_join(user_id, code, session.session_id, role="CREATOR")
 
         # Initialize settings & timer
         settings = self.settings_service.get_or_create_settings(code)
@@ -56,7 +62,7 @@ class SessionService:
             "settings": settings.to_dict()
         }
 
-    def join_session(self, session_code: str, username: str, participant_token: Optional[str] = None) -> Tuple[bool, str, Optional[Dict[str, Any]], str]:
+    def join_session(self, session_code: str, username: str, participant_token: Optional[str] = None, user_id: Optional[str] = None) -> Tuple[bool, str, Optional[Dict[str, Any]], str]:
         """
         Returns: (success, message, session_data, status_code)
         status_code can be 'OK', 'NOT_FOUND', 'FULL', 'INVALID'
@@ -81,7 +87,13 @@ class SessionService:
                 if p.participant_token == participant_token:
                     p.username = user_msg
                     p.is_online = True
+                    if user_id:
+                        p.user_id = user_id
                     self.repo.add_participant(p)
+                    if user_id:
+                        from app.services.history_service import HistoryService
+                        role = "CREATOR" if session.creator_token == participant_token else "PARTICIPANT"
+                        HistoryService(self.repo).record_session_join(user_id, code_msg, session.session_id, role=role)
                     settings = self.settings_service.get_or_create_settings(code_msg)
                     timer = self.timer_service.get_or_create_timer(code_msg, settings)
                     return True, "Rejoined session", {
@@ -109,9 +121,14 @@ class SessionService:
             session_code=code_msg,
             username=user_msg,
             slot=slot,
-            is_online=True
+            is_online=True,
+            user_id=user_id
         )
         self.repo.add_participant(participant)
+
+        if user_id:
+            from app.services.history_service import HistoryService
+            HistoryService(self.repo).record_session_join(user_id, code_msg, session.session_id, role="PARTICIPANT")
 
         settings = self.settings_service.get_or_create_settings(code_msg)
         timer = self.timer_service.get_or_create_timer(code_msg, settings)
@@ -150,6 +167,13 @@ class SessionService:
             return False, "Participant not found", None
 
         session_code = participant.session_code
+        session = self.repo.get_session(session_code)
+        if participant.user_id and session:
+            from app.services.history_service import HistoryService
+            HistoryService(self.repo).record_session_leave(participant.user_id, session.session_id)
+            # Remove from timer service participation start set
+            self.timer_service.remove_user_from_run(session_code, participant.user_id)
+
         self.repo.remove_participant(participant_token)
 
         remaining = self.repo.get_participants_by_session(session_code)

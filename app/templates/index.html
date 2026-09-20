@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="landing-container min-vh-100 d-flex flex-column">
-    <!-- Navbar / Header (Landing Page Single Logo & Theme Toggle) -->
+    <!-- Navbar / Header (Landing Page Single Logo & Theme Toggle + Auth Nav) -->
     <header class="navbar-landing py-4 px-4 px-md-5">
         <div class="container-fluid d-flex align-items-center justify-content-between">
             <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
@@ -17,23 +17,30 @@
                 <span class="brand-name">FocusSync</span>
             </a>
 
-            <!-- Theme Toggle Button -->
-            <button type="button" class="btn-theme-toggle" aria-label="Switch theme">
-                <svg class="theme-icon-sun d-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
+            <div class="d-flex align-items-center gap-3">
+                <!-- Theme Toggle Button -->
+                <button type="button" class="btn-theme-toggle" aria-label="Switch theme">
+                    <svg class="theme-icon-sun d-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <div id="auth-nav-container">
+                    <button class="btn btn-sm btn-outline-custom me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                    <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -131,6 +138,62 @@
     </div>
 </div>
 
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-custom p-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Login to FocusSync</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="login-user" class="form-label small text-secondary-custom">Username or Email</label>
+                        <input type="text" class="form-control input-custom" id="login-user" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="login-pass" class="form-label small text-secondary-custom">Password</label>
+                        <input type="password" class="form-control input-custom" id="login-pass" required>
+                    </div>
+                    <div id="login-error-alert" class="alert alert-danger-custom d-none mb-3" role="alert"></div>
+                    <button type="submit" class="btn btn-orange w-100 py-2.5 fw-semibold">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-custom p-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Register FocusSync Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <form id="register-form">
+                    <div class="mb-3">
+                        <label for="reg-username" class="form-label small text-secondary-custom">Username</label>
+                        <input type="text" class="form-control input-custom" id="reg-username" required minlength="2" maxlength="30">
+                    </div>
+                    <div class="mb-3">
+                        <label for="reg-email" class="form-label small text-secondary-custom">Email Address</label>
+                        <input type="email" class="form-control input-custom" id="reg-email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="reg-password" class="form-label small text-secondary-custom">Password</label>
+                        <input type="password" class="form-control input-custom" id="reg-password" required minlength="6">
+                    </div>
+                    <div id="register-error-alert" class="alert alert-danger-custom d-none mb-3" role="alert"></div>
+                    <button type="submit" class="btn btn-orange w-100 py-2.5 fw-semibold">Register Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal for Session Capacity Reached / Error Alert on Landing Page -->
 <div class="modal fade" id="landingErrorModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -147,3 +210,87 @@
     </div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    async function updateAuthNav() {
+        const res = await ApiClient.getMe();
+        const container = document.getElementById('auth-nav-container');
+        if (res.success && res.data && res.data.authenticated) {
+            const user = res.data.user;
+            container.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-input border-custom text-orange rounded-pill px-3 py-1-5">${user.username}</span>
+                    <a href="/dashboard" class="btn btn-sm btn-outline-custom">Dashboard</a>
+                    <a href="/history" class="btn btn-sm btn-outline-custom">History</a>
+                    <button id="btn-logout" class="btn btn-sm btn-outline-custom">Logout</button>
+                </div>
+            `;
+            // Auto fill username inputs if empty
+            const createInp = document.getElementById('create-username');
+            const joinInp = document.getElementById('join-username');
+            if (createInp && !createInp.value) createInp.value = user.username;
+            if (joinInp && !joinInp.value) joinInp.value = user.username;
+
+            document.getElementById('btn-logout').addEventListener('click', async function() {
+                await ApiClient.logout();
+                updateAuthNav();
+            });
+        } else {
+            container.innerHTML = `
+                <button class="btn btn-sm btn-outline-custom me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+            `;
+        }
+    }
+    updateAuthNav();
+
+    // Handle Login Form
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            const errAlert = document.getElementById('login-error-alert');
+            errAlert.classList.add('d-none');
+
+            const res = await ApiClient.login(u, p);
+            if (res.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                if (modal) modal.hide();
+                updateAuthNav();
+            } else {
+                errAlert.textContent = res.message || 'Login failed';
+                errAlert.classList.remove('d-none');
+            }
+        });
+    }
+
+    // Handle Register Form
+    const regForm = document.getElementById('register-form');
+    if (regForm) {
+        regForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const u = document.getElementById('reg-username').value;
+            const em = document.getElementById('reg-email').value;
+            const p = document.getElementById('reg-password').value;
+            const errAlert = document.getElementById('register-error-alert');
+            errAlert.classList.add('d-none');
+
+            const res = await ApiClient.register(u, em, p);
+            if (res.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('registerModal'));
+                if (modal) modal.hide();
+                updateAuthNav();
+            } else {
+                errAlert.textContent = res.message || 'Registration failed';
+                errAlert.classList.remove('d-none');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+

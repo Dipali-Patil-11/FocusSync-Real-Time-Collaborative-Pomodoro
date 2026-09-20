@@ -154,11 +154,15 @@ def test_multi_client_socket_sync_and_reconnect(app):
     client2 = socketio.test_client(app)
 
     with app.test_client() as http_client:
-        rv = http_client.post('/api/sessions/create', json={"username": "User1"})
+        http_client.get('/api/auth/me')
+        csrf_token = http_client.get_cookie('csrf_token').value
+        headers = {'X-CSRF-Token': csrf_token}
+
+        rv = http_client.post('/api/sessions/create', json={"username": "User1"}, headers=headers)
         code = rv.get_json()["data"]["session_code"]
         token1 = rv.get_json()["data"]["participant_token"]
 
-        rv2 = http_client.post('/api/sessions/join', json={"session_code": code, "username": "User2"})
+        rv2 = http_client.post('/api/sessions/join', json={"session_code": code, "username": "User2"}, headers=headers)
         token2 = rv2.get_json()["data"]["participant_token"]
 
     # Both clients join

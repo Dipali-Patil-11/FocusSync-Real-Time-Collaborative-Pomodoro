@@ -19,15 +19,19 @@ def test_five_participant_capacity_and_rejection(client):
     """
     Test capacity scaling from 1 to 5 participants and 6th rejection.
     """
+    client.get('/api/auth/me')
+    csrf_token = client.get_cookie('csrf_token').value
+    headers = {'X-CSRF-Token': csrf_token}
+
     # 1. Create session as User 1
-    rv = client.post('/api/sessions/create', json={"username": "User 1"})
+    rv = client.post('/api/sessions/create', json={"username": "User 1"}, headers=headers)
     assert rv.status_code == 201
     code = rv.get_json()["data"]["session_code"]
 
     # 2. Join Users 2, 3, 4, 5 -> PASS
     tokens = [rv.get_json()["data"]["participant_token"]]
     for i in range(2, 6):
-        rv_i = client.post('/api/sessions/join', json={"session_code": code, "username": f"User {i}"})
+        rv_i = client.post('/api/sessions/join', json={"session_code": code, "username": f"User {i}"}, headers=headers)
         assert rv_i.status_code == 200
         data = rv_i.get_json()["data"]
         assert data["participant"]["slot"] == i
@@ -35,7 +39,7 @@ def test_five_participant_capacity_and_rejection(client):
         tokens.append(data["participant_token"])
 
     # 3. Join User 6 -> REJECTED (409 FULL)
-    rv6 = client.post('/api/sessions/join', json={"session_code": code, "username": "User 6"})
+    rv6 = client.post('/api/sessions/join', json={"session_code": code, "username": "User 6"}, headers=headers)
     assert rv6.status_code == 409
     assert rv6.get_json()["error_code"] == "FULL"
 
@@ -78,15 +82,19 @@ def test_five_client_socket_sync_and_presence(app):
     """
     flask_client = app.test_client()
 
+    flask_client.get('/api/auth/me')
+    csrf_token = flask_client.get_cookie('csrf_token').value
+    headers = {'X-CSRF-Token': csrf_token}
+
     # Create session
-    rv = flask_client.post('/api/sessions/create', json={"username": "Owner"})
+    rv = flask_client.post('/api/sessions/create', json={"username": "Owner"}, headers=headers)
     assert rv.status_code == 201
     code = rv.get_json()["data"]["session_code"]
     token1 = rv.get_json()["data"]["participant_token"]
 
     tokens = [token1]
     for i in range(2, 6):
-        r = flask_client.post('/api/sessions/join', json={"session_code": code, "username": f"User{i}"})
+        r = flask_client.post('/api/sessions/join', json={"session_code": code, "username": f"User{i}"}, headers=headers)
         assert r.status_code == 200
         tokens.append(r.get_json()["data"]["participant_token"])
 

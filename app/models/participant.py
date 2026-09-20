@@ -9,6 +9,7 @@ class Participant:
     slot: int  # 1 to 5 (MAX_PARTICIPANTS)
     is_online: bool = True
     sid: str = None
+    user_id: str = None
     joined_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     last_seen: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
@@ -16,6 +17,7 @@ class Participant:
         return {
             "participant_token": self.participant_token,
             "session_code": self.session_code,
+            "user_id": self.user_id,
             "username": self.username,
             "slot": self.slot,
             "is_online": self.is_online,

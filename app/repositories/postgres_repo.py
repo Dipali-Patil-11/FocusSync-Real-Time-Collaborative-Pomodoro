@@ -7,6 +7,8 @@ from app.models.session import Session
 from app.models.participant import Participant
 from app.models.timer import TimerState
 from app.models.settings import SessionSettings
+from app.models.user import User
+from app.models.history import UserSessionHistory
 
 class PostgresRepository(BaseRepository):
     def __init__(self, db_config: dict):
@@ -26,17 +28,18 @@ class PostgresRepository(BaseRepository):
 
     def create_session(self, session: Session) -> Session:
         sql = """
-            INSERT INTO sessions (session_code, creator_token, status, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO sessions (session_code, creator_token, session_id, creator_user_id, status, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_code) DO UPDATE SET
             status = EXCLUDED.status,
+            creator_user_id = EXCLUDED.creator_user_id,
             updated_at = EXCLUDED.updated_at
         """
         conn = self._get_connection()
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    session.session_code, session.creator_token, session.status,
+                    session.session_code, session.creator_token, session.session_id, session.creator_user_id, session.status,
                     session.created_at, session.updated_at
                 ))
             return session
@@ -54,6 +57,8 @@ class PostgresRepository(BaseRepository):
                     return Session(
                         session_code=row['session_code'],
                         creator_token=row['creator_token'],
+                        session_id=row.get('session_id', ''),
+                        creator_user_id=row.get('creator_user_id'),
                         status=row['status'],
                         created_at=str(row['created_at']),
                         updated_at=str(row['updated_at'])
@@ -74,9 +79,10 @@ class PostgresRepository(BaseRepository):
 
     def add_participant(self, participant: Participant) -> Participant:
         sql = """
-            INSERT INTO participants (participant_token, session_code, username, slot, is_online, sid, joined_at, last_seen)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO participants (participant_token, session_code, user_id, username, slot, is_online, sid, joined_at, last_seen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (participant_token) DO UPDATE SET
+            user_id = EXCLUDED.user_id,
             username = EXCLUDED.username,
             slot = EXCLUDED.slot,
             is_online = EXCLUDED.is_online,
@@ -87,9 +93,9 @@ class PostgresRepository(BaseRepository):
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    participant.participant_token, participant.session_code, participant.username,
-                    participant.slot, bool(participant.is_online), participant.sid,
-                    participant.joined_at, participant.last_seen
+                    participant.participant_token, participant.session_code, participant.user_id,
+                    participant.username, participant.slot, bool(participant.is_online),
+                    participant.sid, participant.joined_at, participant.last_seen
                 ))
             return participant
         finally:
@@ -106,6 +112,7 @@ class PostgresRepository(BaseRepository):
                     return Participant(
                         participant_token=row['participant_token'],
                         session_code=row['session_code'],
+                        user_id=row.get('user_id'),
                         username=row['username'],
                         slot=row['slot'],
                         is_online=bool(row['is_online']),
@@ -128,6 +135,7 @@ class PostgresRepository(BaseRepository):
                     Participant(
                         participant_token=row['participant_token'],
                         session_code=row['session_code'],
+                        user_id=row.get('user_id'),
                         username=row['username'],
                         slot=row['slot'],
                         is_online=bool(row['is_online']),
@@ -287,5 +295,187 @@ class PostgresRepository(BaseRepository):
                     settings.long_break_interval, bool(settings.auto_start), bool(settings.sound_enabled)
                 ))
             return settings
+        finally:
+            conn.close()
+
+    # User operations
+    def create_user(self, user: User) -> User:
+        sql = """
+            INSERT INTO users (user_id, username, email, password_hash, is_active, created_at, updated_at, last_login_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (user_id) DO UPDATE SET
+            username = EXCLUDED.username,
+            email = EXCLUDED.email,
+            password_hash = EXCLUDED.password_hash,
+            is_active = EXCLUDED.is_active,
+            updated_at = EXCLUDED.updated_at,
+            last_login_at = EXCLUDED.last_login_at
+        """
+        conn = self._get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, (
+                    user.user_id, user.username, user.email, user.password_hash,
+                    user.is_active, user.created_at, user.updated_at, user.last_login_at
+                ))
+            return user
+        finally:
+            conn.close()
+
+    def get_user_by_id(self, user_id: str) -> Optional[User]:
+        sql = "SELECT * FROM users WHERE user_id = %s"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql, (user_id,))
+                row = cursor.fetchone()
+                if row:
+                    return User(
+                        user_id=row['user_id'],
+                        username=row['username'],
+                        email=row['email'],
+                        password_hash=row['password_hash'],
+                        is_active=bool(row['is_active']),
+                        created_at=str(row['created_at']),
+                        updated_at=str(row['updated_at']),
+                        last_login_at=str(row['last_login_at']) if row.get('last_login_at') else None
+                    )
+            return None
+        finally:
+            conn.close()
+
+    def get_user_by_email(self, email: str) -> Optional[User]:
+        sql = "SELECT * FROM users WHERE LOWER(email) = LOWER(%s)"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql, (email,))
+                row = cursor.fetchone()
+                if row:
+                    return User(
+                        user_id=row['user_id'],
+                        username=row['username'],
+                        email=row['email'],
+                        password_hash=row['password_hash'],
+                        is_active=bool(row['is_active']),
+                        created_at=str(row['created_at']),
+                        updated_at=str(row['updated_at']),
+                        last_login_at=str(row['last_login_at']) if row.get('last_login_at') else None
+                    )
+            return None
+        finally:
+            conn.close()
+
+    def get_user_by_username(self, username: str) -> Optional[User]:
+        sql = "SELECT * FROM users WHERE LOWER(username) = LOWER(%s)"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql, (username,))
+                row = cursor.fetchone()
+                if row:
+                    return User(
+                        user_id=row['user_id'],
+                        username=row['username'],
+                        email=row['email'],
+                        password_hash=row['password_hash'],
+                        is_active=bool(row['is_active']),
+                        created_at=str(row['created_at']),
+                        updated_at=str(row['updated_at']),
+                        last_login_at=str(row['last_login_at']) if row.get('last_login_at') else None
+                    )
+            return None
+        finally:
+            conn.close()
+
+    def update_user(self, user: User) -> User:
+        return self.create_user(user)
+
+    def clear_user_id_from_participants(self, user_id: str) -> List[str]:
+        sql_sel = "SELECT DISTINCT session_code FROM participants WHERE user_id = %s"
+        sql_upd = "UPDATE participants SET user_id = NULL WHERE user_id = %s"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql_sel, (user_id,))
+                rows = cursor.fetchall()
+                codes = [r['session_code'] for r in rows]
+                cursor.execute(sql_upd, (user_id,))
+                return codes
+        finally:
+            conn.close()
+
+    # History operations
+    def save_user_history(self, history: UserSessionHistory) -> UserSessionHistory:
+        sql = """
+            INSERT INTO user_session_history (history_id, user_id, session_code, session_id, role, joined_at, left_at, focus_sessions_completed, focus_time_seconds, current_cycle_focus_sessions, cycles_completed)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (user_id, session_id) DO UPDATE SET
+            role = EXCLUDED.role,
+            left_at = EXCLUDED.left_at,
+            focus_sessions_completed = EXCLUDED.focus_sessions_completed,
+            focus_time_seconds = EXCLUDED.focus_time_seconds,
+            current_cycle_focus_sessions = EXCLUDED.current_cycle_focus_sessions,
+            cycles_completed = EXCLUDED.cycles_completed
+        """
+        conn = self._get_connection()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(sql, (
+                    history.history_id, history.user_id, history.session_code, history.session_id, history.role,
+                    history.joined_at, history.left_at, history.focus_sessions_completed,
+                    history.focus_time_seconds, history.current_cycle_focus_sessions, history.cycles_completed
+                ))
+            return history
+        finally:
+            conn.close()
+
+    def get_user_history(self, user_id: str, limit: int = 50, offset: int = 0) -> List[UserSessionHistory]:
+        sql = "SELECT * FROM user_session_history WHERE user_id = %s ORDER BY joined_at DESC LIMIT %s OFFSET %s"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql, (user_id, limit, offset))
+                rows = cursor.fetchall()
+                return [
+                    UserSessionHistory(
+                        history_id=row['history_id'],
+                        user_id=row['user_id'],
+                        session_code=row['session_code'],
+                        session_id=row.get('session_id', ''),
+                        role=row['role'],
+                        joined_at=str(row['joined_at']),
+                        left_at=str(row['left_at']) if row.get('left_at') else None,
+                        focus_sessions_completed=row['focus_sessions_completed'],
+                        focus_time_seconds=row['focus_time_seconds'],
+                        current_cycle_focus_sessions=row.get('current_cycle_focus_sessions', 0),
+                        cycles_completed=row['cycles_completed']
+                    ) for row in rows
+                ]
+        finally:
+            conn.close()
+
+    def get_user_history_entry(self, user_id: str, session_id: str) -> Optional[UserSessionHistory]:
+        sql = "SELECT * FROM user_session_history WHERE user_id = %s AND session_id = %s"
+        conn = self._get_connection()
+        try:
+            with conn.cursor(row_factory=dict_row) as cursor:
+                cursor.execute(sql, (user_id, session_id))
+                row = cursor.fetchone()
+                if row:
+                    return UserSessionHistory(
+                        history_id=row['history_id'],
+                        user_id=row['user_id'],
+                        session_code=row['session_code'],
+                        session_id=row.get('session_id', ''),
+                        role=row['role'],
+                        joined_at=str(row['joined_at']),
+                        left_at=str(row['left_at']) if row.get('left_at') else None,
+                        focus_sessions_completed=row['focus_sessions_completed'],
+                        focus_time_seconds=row['focus_time_seconds'],
+                        current_cycle_focus_sessions=row.get('current_cycle_focus_sessions', 0),
+                        cycles_completed=row['cycles_completed']
+                    )
+            return None
         finally:
             conn.close()

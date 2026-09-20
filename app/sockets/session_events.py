@@ -1,5 +1,5 @@
 import uuid
-from flask import request
+from flask import request, session as flask_session
 from flask_socketio import join_room, leave_room, emit
 from app.utilities.db import get_repository
 from app.services.session_service import SessionService
@@ -22,7 +22,15 @@ def register_session_events(socketio):
         session_service = SessionService(repo)
         presence_service = PresenceService(repo)
 
-        success, message, result, status_code = session_service.join_session(session_code, username, participant_token)
+        # Server-authoritative identity from WSGI session cookie
+        user_id = flask_session.get('user_id')
+
+        success, message, result, status_code = session_service.join_session(
+            session_code=session_code,
+            username=username,
+            participant_token=participant_token,
+            user_id=user_id
+        )
 
         if not success:
             if status_code == 'FULL':

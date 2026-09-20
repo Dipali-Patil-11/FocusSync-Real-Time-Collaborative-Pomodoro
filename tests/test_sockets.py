@@ -17,7 +17,9 @@ def test_socket_join_and_timer_events(app, socket_client):
 
     # Create session via REST first
     with app.test_client() as http_client:
-        rv = http_client.post('/api/sessions/create', json={"username": "Alice"})
+        http_client.get('/api/auth/me')
+        csrf_token = http_client.get_cookie('csrf_token').value
+        rv = http_client.post('/api/sessions/create', json={"username": "Alice"}, headers={'X-CSRF-Token': csrf_token})
         code = rv.get_json()["data"]["session_code"]
         token = rv.get_json()["data"]["participant_token"]
 

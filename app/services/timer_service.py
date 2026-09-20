@@ -1,15 +1,28 @@
 import time
 import threading
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Set
 from app.repositories.base import BaseRepository
 from app.models.timer import TimerState
 from app.models.settings import SessionSettings
 from app.utilities.constants import TimerMode, TimerStatus
 
 class TimerService:
+    _active_run_participants: Dict[str, Set[str]] = {}
+
     def __init__(self, repository: BaseRepository):
         self.repo = repository
         self._lock = threading.RLock()
+
+    def snapshot_run_participants(self, session_code: str):
+        with self._lock:
+            participants = self.repo.get_participants_by_session(session_code)
+            user_ids = {p.user_id for p in participants if p.user_id}
+            TimerService._active_run_participants[session_code] = user_ids
+
+    def remove_user_from_run(self, session_code: str, user_id: str):
+        with self._lock:
+            if session_code in TimerService._active_run_participants:
+                TimerService._active_run_participants[session_code].discard(user_id)
 
     def get_or_create_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> TimerState:
         with self._lock:
@@ -43,6 +56,11 @@ class TimerService:
 
             if timer.status == TimerStatus.COMPLETED.value or timer.remaining_seconds <= 0:
                 timer.remaining_seconds = timer.duration
+
+            # Snapshot participants when a FOCUS run starts/resumes fresh
+            if timer.mode == TimerMode.FOCUS.value:
+                if session_code not in TimerService._active_run_participants or timer.status in [TimerStatus.IDLE.value, TimerStatus.COMPLETED.value]:
+                    self.snapshot_run_participants(session_code)
 
             timer.status = TimerStatus.RUNNING.value
             timer.started_at = now
@@ -101,7 +119,10 @@ class TimerService:
                 timer = self.get_or_create_timer(session_code, settings)
 
             completed_mode = timer.mode
+            completed_duration = timer.duration
             interval = settings.long_break_interval if settings else 4
+
+            is_cycle_completed = False
 
             # Determine next mode & update completed_sessions count and tracker metrics
             if completed_mode == TimerMode.FOCUS.value:
@@ -110,9 +131,24 @@ class TimerService:
                 timer.total_focus_time_seconds += timer.duration
                 if timer.completed_sessions == interval:
                     timer.total_completed_cycles += 1
+                    is_cycle_completed = True
                     next_mode = TimerMode.LONG_BREAK.value
                 else:
                     next_mode = TimerMode.SHORT_BREAK.value
+
+                # Pop eligible participants for history attribution
+                eligible_user_ids = TimerService._active_run_participants.pop(session_code, set())
+                if eligible_user_ids:
+                    session_obj = self.repo.get_session(session_code)
+                    session_id = session_obj.session_id if session_obj else ""
+                    from app.services.history_service import HistoryService
+                    HistoryService(self.repo).credit_focus_run(
+                        session_code=session_code,
+                        session_id=session_id,
+                        eligible_user_ids=eligible_user_ids,
+                        duration_secs=completed_duration,
+                        long_break_interval=interval
+                    )
             elif completed_mode == TimerMode.SHORT_BREAK.value:
                 next_mode = TimerMode.FOCUS.value
             elif completed_mode == TimerMode.LONG_BREAK.value:
@@ -141,6 +177,10 @@ class TimerService:
                 timer.target_end_time = now + duration_secs
                 timer.remaining_seconds = duration_secs
                 auto_started = True
+
+                # If auto-started into FOCUS, snapshot participants now
+                if next_mode == TimerMode.FOCUS.value:
+                    self.snapshot_run_participants(session_code)
             else:
                 timer.status = TimerStatus.IDLE.value
                 timer.started_at = None
@@ -165,6 +205,8 @@ class TimerService:
             timer = self.get_or_create_timer(session_code, settings)
 
             if timer.mode == TimerMode.FOCUS.value:
+                # Skipping a FOCUS run discards current attribution snapshot
+                TimerService._active_run_participants.pop(session_code, None)
                 next_mode = TimerMode.SHORT_BREAK.value
                 # Do NOT increment completed_sessions on skip
             elif timer.mode == TimerMode.SHORT_BREAK.value:
@@ -222,3 +264,4 @@ class TimerService:
                     timer.remaining_seconds = new_duration_secs
                 self.repo.save_timer(timer)
             return timer
+

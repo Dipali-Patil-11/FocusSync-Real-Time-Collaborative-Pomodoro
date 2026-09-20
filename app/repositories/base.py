@@ -62,3 +62,41 @@ class BaseRepository(ABC):
     @abstractmethod
     def save_settings(self, settings: SessionSettings) -> SessionSettings:
         pass
+
+    # User operations
+    @abstractmethod
+    def create_user(self, user) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def get_user_by_id(self, user_id: str) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def get_user_by_email(self, email: str) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def get_user_by_username(self, username: str) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def update_user(self, user) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def clear_user_id_from_participants(self, user_id: str) -> List[str]:
+        pass
+
+    # History operations
+    @abstractmethod
+    def save_user_history(self, history) -> Optional[any]:
+        pass
+
+    @abstractmethod
+    def get_user_history(self, user_id: str, limit: int = 50, offset: int = 0) -> List[any]:
+        pass
+
+    @abstractmethod
+    def get_user_history_entry(self, user_id: str, session_id: str) -> Optional[any]:
+        pass
