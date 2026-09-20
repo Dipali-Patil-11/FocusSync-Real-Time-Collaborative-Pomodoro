@@ -1,5 +1,6 @@
 window.TimerRenderer = {
     timerState: null,
+    settings: null,
     serverOffset: 0,
     animationFrameId: null,
     soundEnabled: true,
@@ -9,6 +10,7 @@ window.TimerRenderer = {
         this.clockEl = document.getElementById('timer-clock');
         this.statusEl = document.getElementById('timer-status');
         this.sessionEl = document.getElementById('session-counter');
+        this.modeBadge = document.getElementById('timer-mode-badge');
         this.progressRing = document.getElementById('timer-progress-ring');
         this.toggleBtn = document.getElementById('btn-timer-toggle');
         this.toggleText = document.getElementById('toggle-text');
@@ -19,6 +21,12 @@ window.TimerRenderer = {
         if (this.progressRing) {
             this.progressRing.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
         }
+    },
+
+    updateSettings: function(settings) {
+        if (!settings) return;
+        this.settings = settings;
+        this.render();
     },
 
     updateState: function(state, soundEnabled = true) {
@@ -95,6 +103,13 @@ window.TimerRenderer = {
         if (this.clockEl) this.clockEl.textContent = formattedTime;
         document.title = `${formattedTime} - ${this.timerState.mode.replace('_', ' ')} | FocusSync`;
 
+        // Update Mode Badge
+        if (this.modeBadge) {
+            const modeText = this.timerState.mode.replace('_', ' ');
+            this.modeBadge.textContent = modeText;
+            this.modeBadge.dataset.mode = this.timerState.mode;
+        }
+
         // Update Status Badge
         if (this.statusEl) {
             this.statusEl.textContent = this.timerState.status;
@@ -103,11 +118,20 @@ window.TimerRenderer = {
             }`;
         }
 
-        // Update Session Counter
+        // Update Cycle Session Counter
         if (this.sessionEl) {
-            const count = this.timerState.completed_sessions || 0;
-            const currentSessionInCycle = (count % 4) + 1;
-            this.sessionEl.textContent = `Session ${currentSessionInCycle} of 4 (${count} completed)`;
+            const interval = this.settings?.long_break_interval || 4;
+            const completed = this.timerState.completed_sessions || 0;
+            
+            if (this.timerState.mode === 'FOCUS') {
+                const currentFocusInCycle = (completed % interval) + 1;
+                this.sessionEl.textContent = `Focus Session ${currentFocusInCycle} of ${interval}`;
+            } else if (this.timerState.mode === 'SHORT_BREAK') {
+                const completedFocusInCycle = completed % interval || interval;
+                this.sessionEl.textContent = `Short Break (Focus ${completedFocusInCycle} of ${interval} completed)`;
+            } else if (this.timerState.mode === 'LONG_BREAK') {
+                this.sessionEl.textContent = `Long Break (${interval} Focus Sessions completed)`;
+            }
         }
 
         // Update Progress Ring
@@ -134,14 +158,5 @@ window.TimerRenderer = {
                 this.pauseIcon.classList.add('d-none');
             }
         }
-
-        // Highlight mode buttons
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            if (btn.dataset.mode === this.timerState.mode) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
     }
 };

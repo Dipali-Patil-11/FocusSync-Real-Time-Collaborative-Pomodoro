@@ -173,18 +173,27 @@
     color: var(--color-text-primary);
 }
 
-.mode-btn.btn-pill.active[data-mode="FOCUS"] {
-    background-color: var(--color-focus);
+/* Mode Status Badge (Informational) */
+.mode-status-badge {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    transition: all 0.25s ease;
+}
+
+.mode-status-badge[data-mode="FOCUS"] {
+    background-color: var(--color-focus) !important;
     color: #FFFFFF !important;
 }
 
-.mode-btn.btn-pill.active[data-mode="SHORT_BREAK"] {
-    background-color: var(--color-short-break);
+.mode-status-badge[data-mode="SHORT_BREAK"] {
+    background-color: var(--color-short-break) !important;
     color: #FFFFFF !important;
 }
 
-.mode-btn.btn-pill.active[data-mode="LONG_BREAK"] {
-    background-color: var(--color-long-break);
+.mode-status-badge[data-mode="LONG_BREAK"] {
+    background-color: var(--color-long-break) !important;
     color: #FFFFFF !important;
 }
 

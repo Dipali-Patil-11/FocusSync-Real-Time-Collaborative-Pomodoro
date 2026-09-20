@@ -33,3 +33,13 @@ def validate_duration(duration: int, field_name: str = "Duration") -> tuple[bool
         return True, ""
     except (ValueError, TypeError):
         return False, f"Invalid value for {field_name}."
+
+def validate_interval(interval: int, field_name: str = "Long break interval") -> tuple[bool, str]:
+    try:
+        val = int(interval)
+        if val < 2 or val > 8:
+            return False, f"{field_name} must be between 2 and 8 focus sessions."
+        return True, ""
+    except (ValueError, TypeError):
+        return False, f"Invalid value for {field_name}."
+

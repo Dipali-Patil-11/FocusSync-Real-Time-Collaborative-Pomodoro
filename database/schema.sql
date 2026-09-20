@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS settings (
     focus_duration INT NOT NULL DEFAULT 25,
     short_break_duration INT NOT NULL DEFAULT 5,
     long_break_duration INT NOT NULL DEFAULT 15,
+    long_break_interval INT NOT NULL DEFAULT 4,
     auto_start BOOLEAN DEFAULT FALSE,
     sound_enabled BOOLEAN DEFAULT TRUE
 );

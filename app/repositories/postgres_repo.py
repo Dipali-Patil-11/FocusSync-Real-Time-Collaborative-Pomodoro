@@ -251,6 +251,7 @@ class PostgresRepository(BaseRepository):
                         focus_duration=row['focus_duration'],
                         short_break_duration=row['short_break_duration'],
                         long_break_duration=row['long_break_duration'],
+                        long_break_interval=row.get('long_break_interval', 4) if 'long_break_interval' in row and row['long_break_interval'] is not None else 4,
                         auto_start=bool(row['auto_start']),
                         sound_enabled=bool(row['sound_enabled'])
                     )
@@ -260,12 +261,13 @@ class PostgresRepository(BaseRepository):
 
     def save_settings(self, settings: SessionSettings) -> SessionSettings:
         sql = """
-            INSERT INTO settings (session_code, focus_duration, short_break_duration, long_break_duration, auto_start, sound_enabled)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO settings (session_code, focus_duration, short_break_duration, long_break_duration, long_break_interval, auto_start, sound_enabled)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_code) DO UPDATE SET
             focus_duration = EXCLUDED.focus_duration,
             short_break_duration = EXCLUDED.short_break_duration,
             long_break_duration = EXCLUDED.long_break_duration,
+            long_break_interval = EXCLUDED.long_break_interval,
             auto_start = EXCLUDED.auto_start,
             sound_enabled = EXCLUDED.sound_enabled
         """
@@ -274,7 +276,7 @@ class PostgresRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
                     settings.session_code, settings.focus_duration, settings.short_break_duration, settings.long_break_duration,
-                    bool(settings.auto_start), bool(settings.sound_enabled)
+                    settings.long_break_interval, bool(settings.auto_start), bool(settings.sound_enabled)
                 ))
             return settings
         finally:

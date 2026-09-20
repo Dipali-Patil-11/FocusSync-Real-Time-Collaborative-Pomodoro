@@ -123,29 +123,17 @@ def register_timer_events(socketio):
         timer_service = TimerService(repo)
 
         settings = settings_service.get_or_create_settings(session_code)
-        timer = timer_service.get_or_create_timer(session_code, settings)
+        success, msg, timer, completed_mode, next_mode, auto_started = timer_service.complete_timer(session_code, settings)
 
-        if timer.status != 'COMPLETED':
-            timer.status = 'COMPLETED'
-            timer.remaining_seconds = 0
-            timer.target_end_time = None
-            if timer.mode == 'FOCUS':
-                timer.completed_sessions += 1
-            repo.save_timer(timer)
-
-        emit('timer_completed', {'timer': timer.to_dict()}, to=session_code)
-        comp_notification = get_complete_notification_payload(timer.mode)
+        comp_notification = get_complete_notification_payload(completed_mode)
         emit('timer_completed_notification', comp_notification, to=session_code)
 
-        # Handle auto-start next session if enabled in session settings
-        if settings.auto_start:
-            success_skip, _, next_timer = timer_service.skip_timer(session_code, settings)
-            if success_skip:
-                success_start, msg_start, started_timer = timer_service.start_timer(session_code)
-                if success_start:
-                    emit('timer_start', {'timer': started_timer.to_dict(), 'message': msg_start}, to=session_code)
-                    start_notification = get_start_notification_payload(started_timer.mode, started_timer.duration)
-                    emit('timer_started_notification', start_notification, to=session_code)
+        if auto_started:
+            emit('timer_start', {'timer': timer.to_dict(), 'message': f'Next mode ({next_mode}) started automatically'}, to=session_code)
+            start_notification = get_start_notification_payload(timer.mode, timer.duration)
+            emit('timer_started_notification', start_notification, to=session_code)
+        else:
+            emit('timer_mode_changed', {'timer': timer.to_dict(), 'message': f'Switched to {next_mode}'}, to=session_code)
 
     @socketio.on('settings_updated')
     def handle_settings_updated(data):
@@ -156,6 +144,7 @@ def register_timer_events(socketio):
         focus = data.get('focus_duration', 25)
         short_b = data.get('short_break_duration', 5)
         long_b = data.get('long_break_duration', 15)
+        long_b_interval = data.get('long_break_interval', 4)
         auto_start = data.get('auto_start', False)
         sound = data.get('sound_enabled', True)
 
@@ -163,12 +152,13 @@ def register_timer_events(socketio):
         settings_service = SettingsService(repo)
         timer_service = TimerService(repo)
 
-        success, msg, settings = settings_service.update_settings(session_code, focus, short_b, long_b, auto_start, sound)
+        success, msg, settings = settings_service.update_settings(
+            session_code, focus, short_b, long_b, long_b_interval, auto_start, sound
+        )
         if not success:
             emit('session_error', {'message': msg})
             return
 
-        # Update current timer state based on new duration settings
         timer = timer_service.update_durations_from_settings(session_code, settings)
 
         emit('settings_updated', {

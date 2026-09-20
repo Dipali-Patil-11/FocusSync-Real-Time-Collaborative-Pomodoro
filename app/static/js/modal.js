@@ -109,6 +109,7 @@ window.ModalController = {
             const focusVal = parseInt(document.getElementById('setting-focus').value);
             const shortVal = parseInt(document.getElementById('setting-short-break').value);
             const longVal = parseInt(document.getElementById('setting-long-break').value);
+            const intervalVal = parseInt(document.getElementById('setting-long-break-interval')?.value || 4);
             const autoStartVal = document.getElementById('setting-auto-start').checked;
             const soundVal = document.getElementById('setting-sound').checked;
 
@@ -120,6 +121,7 @@ window.ModalController = {
                 focus_duration: focusVal,
                 short_break_duration: shortVal,
                 long_break_duration: longVal,
+                long_break_interval: intervalVal,
                 auto_start: autoStartVal,
                 sound_enabled: soundVal
             });

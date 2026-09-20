@@ -25,16 +25,12 @@ class TimerService:
                 )
                 self.repo.save_timer(timer)
             else:
-                # Update status if completed
+                # Check if running timer has expired naturally
                 if timer.status == TimerStatus.RUNNING.value and timer.target_end_time:
                     now = time.time()
                     if now >= timer.target_end_time:
-                        timer.status = TimerStatus.COMPLETED.value
-                        timer.remaining_seconds = 0
-                        timer.target_end_time = None
-                        if timer.mode == TimerMode.FOCUS.value:
-                            timer.completed_sessions += 1
-                        self.repo.save_timer(timer)
+                        self.complete_timer(session_code, settings)
+                        timer = self.repo.get_timer(session_code)
             return timer
 
     def start_timer(self, session_code: str) -> Tuple[bool, str, TimerState]:
@@ -90,16 +86,89 @@ class TimerService:
             saved = self.repo.save_timer(timer)
             return True, "Timer reset", saved
 
-    def skip_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> Tuple[bool, str, TimerState]:
+    def complete_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> Tuple[bool, str, TimerState, str, str, bool]:
+        """
+        Authoritative timer completion logic.
+        Returns (success, message, timer_state, completed_mode, next_mode, auto_started).
+        """
         with self._lock:
-            timer = self.get_or_create_timer(session_code, settings)
-            
-            # Rotate modes: FOCUS -> SHORT_BREAK -> FOCUS (or LONG_BREAK every 4 sessions)
-            if timer.mode == TimerMode.FOCUS.value:
-                if timer.completed_sessions > 0 and timer.completed_sessions % 4 == 0:
+            if not settings:
+                from app.services.settings_service import SettingsService
+                settings = SettingsService(self.repo).get_or_create_settings(session_code)
+
+            timer = self.repo.get_timer(session_code)
+            if not timer:
+                timer = self.get_or_create_timer(session_code, settings)
+
+            completed_mode = timer.mode
+            interval = settings.long_break_interval if settings else 4
+
+            # Determine next mode & update completed_sessions count
+            if completed_mode == TimerMode.FOCUS.value:
+                timer.completed_sessions += 1
+                if timer.completed_sessions == interval:
                     next_mode = TimerMode.LONG_BREAK.value
                 else:
                     next_mode = TimerMode.SHORT_BREAK.value
+            elif completed_mode == TimerMode.SHORT_BREAK.value:
+                next_mode = TimerMode.FOCUS.value
+            elif completed_mode == TimerMode.LONG_BREAK.value:
+                timer.completed_sessions = 0  # Reset cycle counter after Long Break
+                next_mode = TimerMode.FOCUS.value
+            else:
+                next_mode = TimerMode.FOCUS.value
+
+            # Determine new mode duration
+            duration_mins = settings.focus_duration
+            if next_mode == TimerMode.SHORT_BREAK.value:
+                duration_mins = settings.short_break_duration
+            elif next_mode == TimerMode.LONG_BREAK.value:
+                duration_mins = settings.long_break_duration
+            duration_secs = duration_mins * 60
+
+            now = time.time()
+            timer.mode = next_mode
+            timer.duration = duration_secs
+            timer.updated_at = now
+
+            auto_started = False
+            if settings and settings.auto_start:
+                timer.status = TimerStatus.RUNNING.value
+                timer.started_at = now
+                timer.target_end_time = now + duration_secs
+                timer.remaining_seconds = duration_secs
+                auto_started = True
+            else:
+                timer.status = TimerStatus.IDLE.value
+                timer.started_at = None
+                timer.target_end_time = None
+                timer.remaining_seconds = duration_secs
+
+            saved = self.repo.save_timer(timer)
+            return True, f"Timer completed. Transitioned to {next_mode}", saved, completed_mode, next_mode, auto_started
+
+    def skip_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> Tuple[bool, str, TimerState]:
+        """
+        Skip logic:
+        - Skipping FOCUS moves to SHORT_BREAK without incrementing completed_sessions (never triggers Long Break).
+        - Skipping SHORT_BREAK moves to FOCUS.
+        - Skipping LONG_BREAK resets completed_sessions to 0 and moves to FOCUS.
+        """
+        with self._lock:
+            if not settings:
+                from app.services.settings_service import SettingsService
+                settings = SettingsService(self.repo).get_or_create_settings(session_code)
+
+            timer = self.get_or_create_timer(session_code, settings)
+
+            if timer.mode == TimerMode.FOCUS.value:
+                next_mode = TimerMode.SHORT_BREAK.value
+                # Do NOT increment completed_sessions on skip
+            elif timer.mode == TimerMode.SHORT_BREAK.value:
+                next_mode = TimerMode.FOCUS.value
+            elif timer.mode == TimerMode.LONG_BREAK.value:
+                timer.completed_sessions = 0  # Reset cycle counter on Long Break skip
+                next_mode = TimerMode.FOCUS.value
             else:
                 next_mode = TimerMode.FOCUS.value
 

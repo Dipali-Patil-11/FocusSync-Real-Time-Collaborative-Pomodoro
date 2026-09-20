@@ -12,7 +12,7 @@
                 <div class="brand-logo-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
+                        <polyline points="12 6 12 16 14"></polyline>
                     </svg>
                 </div>
                 <span class="brand-name h6 mb-0 fw-bold">FocusSync</span>
@@ -83,11 +83,9 @@
                     </span>
                 </div>
 
-                <!-- Mode Selector Pills -->
-                <div class="mode-selector-pills d-inline-flex p-1 bg-card border-custom rounded-pill mb-4" role="group" aria-label="Timer Mode Selection">
-                    <button type="button" class="mode-btn btn-pill active" data-mode="FOCUS">Focus</button>
-                    <button type="button" class="mode-btn btn-pill" data-mode="SHORT_BREAK">Short Break</button>
-                    <button type="button" class="mode-btn btn-pill" data-mode="LONG_BREAK">Long Break</button>
+                <!-- Mode Status Indicator (Informational, Non-Clickable) -->
+                <div class="mode-indicator-wrapper mb-4">
+                    <span class="mode-status-badge badge rounded-pill px-4 py-2 font-monospace fs-6" id="timer-mode-badge" data-mode="FOCUS">FOCUS</span>
                 </div>
 
                 <!-- Main Timer Circle -->
@@ -104,7 +102,7 @@
                         <div class="timer-text-content position-absolute top-50 start-50 translate-middle text-center w-100">
                             <div class="timer-clock-text font-monospace fw-bold" id="timer-clock">25:00</div>
                             <div class="timer-status-badge badge rounded-pill px-3 py-1 mt-2 bg-input border-custom text-secondary-custom" id="timer-status">IDLE</div>
-                            <div class="session-counter-text small text-secondary-custom mt-2" id="session-counter">Session 1 of 4</div>
+                            <div class="session-counter-text small text-secondary-custom mt-2" id="session-counter">Focus Session 1 of 4</div>
                         </div>
                     </div>
 
@@ -210,6 +208,21 @@
                         </div>
                     </div>
 
+                    <h6 class="small text-uppercase tracking-wider text-secondary-custom fw-bold mb-3">Pomodoro Cycle</h6>
+
+                    <!-- Long Break Interval -->
+                    <div class="duration-counter-row d-flex align-items-center justify-content-between p-3 rounded bg-input border-custom mb-4">
+                        <div>
+                            <div class="fw-semibold small">Long break after</div>
+                            <div class="text-secondary-custom extra-small">Take a long break after completing this many focus sessions</div>
+                        </div>
+                        <div class="counter-controls d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-long-break-interval" aria-label="Decrease long break interval">-</button>
+                            <input type="number" id="setting-long-break-interval" class="form-control counter-input input-custom text-center" value="4" min="2" max="8" required aria-label="Long break interval focus sessions">
+                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-long-break-interval" aria-label="Increase long break interval">+</button>
+                        </div>
+                    </div>
+
                     <h6 class="small text-uppercase tracking-wider text-secondary-custom fw-bold mb-3">Preferences</h6>
                     
                     <div class="d-flex align-items-center justify-content-between p-3 rounded bg-input border-custom mb-3">
@@ -271,7 +284,7 @@
                 </div>
 
                 <div class="badge bg-input border-custom text-secondary-custom rounded-pill px-3 py-2 small">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1 text-orange"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1 text-orange"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 1-0 7.75"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     Dedicated session — Maximum 2 people
                 </div>
             </div>

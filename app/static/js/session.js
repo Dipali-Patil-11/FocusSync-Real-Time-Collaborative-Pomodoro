@@ -45,18 +45,6 @@ window.SessionManager = {
     },
 
     bindEvents: function() {
-        // Mode selector buttons
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const mode = e.target.dataset.mode;
-                if (mode) {
-                    window.SocketClient.emit('timer_change_mode', {
-                        session_code: this.sessionCode,
-                        mode: mode
-                    });
-                }
-            });
-        });
 
         // Timer Toggle (Start / Pause)
         const toggleBtn = document.getElementById('btn-timer-toggle');
@@ -276,13 +264,19 @@ window.SessionManager = {
         const focusInput = document.getElementById('setting-focus');
         const shortInput = document.getElementById('setting-short-break');
         const longInput = document.getElementById('setting-long-break');
+        const intervalInput = document.getElementById('setting-long-break-interval');
         const autoStartInput = document.getElementById('setting-auto-start');
         const soundInput = document.getElementById('setting-sound');
 
         if (focusInput) focusInput.value = settings.focus_duration;
         if (shortInput) shortInput.value = settings.short_break_duration;
         if (longInput) longInput.value = settings.long_break_duration;
+        if (intervalInput) intervalInput.value = settings.long_break_interval || 4;
         if (autoStartInput) autoStartInput.checked = settings.auto_start;
         if (soundInput) soundInput.checked = settings.sound_enabled;
+
+        if (window.TimerRenderer) {
+            window.TimerRenderer.updateSettings(settings);
+        }
     }
 };

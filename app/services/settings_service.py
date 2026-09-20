@@ -1,6 +1,6 @@
 from app.repositories.base import BaseRepository
 from app.models.settings import SessionSettings
-from app.utilities.validators import validate_duration
+from app.utilities.validators import validate_duration, validate_interval
 
 class SettingsService:
     def __init__(self, repository: BaseRepository):
@@ -13,7 +13,7 @@ class SettingsService:
             self.repo.save_settings(settings)
         return settings
 
-    def update_settings(self, session_code: str, focus_min: int, short_break_min: int, long_break_min: int, auto_start: bool, sound_enabled: bool) -> tuple[bool, str, SessionSettings]:
+    def update_settings(self, session_code: str, focus_min: int, short_break_min: int, long_break_min: int, long_break_interval: int = 4, auto_start: bool = False, sound_enabled: bool = True) -> tuple[bool, str, SessionSettings]:
         valid, msg = validate_duration(focus_min, "Focus duration")
         if not valid:
             return False, msg, None
@@ -26,11 +26,16 @@ class SettingsService:
         if not valid:
             return False, msg, None
 
+        valid, msg = validate_interval(long_break_interval, "Long break interval")
+        if not valid:
+            return False, msg, None
+
         settings = SessionSettings(
             session_code=session_code,
             focus_duration=int(focus_min),
             short_break_duration=int(short_break_min),
             long_break_duration=int(long_break_min),
+            long_break_interval=int(long_break_interval),
             auto_start=bool(auto_start),
             sound_enabled=bool(sound_enabled)
         )
