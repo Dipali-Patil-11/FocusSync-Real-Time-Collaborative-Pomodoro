@@ -1,5 +1,21 @@
-/* Tablet & Desktop Adjustments (<= 992px) */
-@media (max-width: 992px) {
+/* ====================================================== */
+/* Responsive CSS — FocusSync Fluid Layout Adaptations    */
+/* ====================================================== */
+
+/* Desktop & Laptop Viewports (1280px, 1366px, 1440px+) */
+@media (min-width: 1200px) {
+    .landing-container .container,
+    .session-container .container {
+        max-width: 1140px;
+    }
+
+    .hero-title {
+        font-size: 3.25rem;
+    }
+}
+
+/* iPad / Tablet Landscape & Small Laptops (992px to 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
     .hero-title {
         font-size: 2.75rem;
     }
@@ -9,10 +25,33 @@
     }
 }
 
-/* Medium Tablets & Mobile Devices (<= 768px) */
+/* iPad / Tablet Portrait (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .timer-card {
+        max-width: 620px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .participants-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem !important;
+    }
+
+    .auth-card {
+        max-width: 520px;
+    }
+}
+
+/* Mobile & Small Tablets (<= 768px) */
 @media (max-width: 768px) {
     .hero-title {
-        font-size: 2.25rem;
+        font-size: 2.15rem;
     }
 
     .auth-card {
@@ -29,25 +68,24 @@
         padding: 0.25rem 0.6rem !important;
     }
 
-    /* Mode selector pill wrap/overflow protection */
-    .mode-selector-pills {
-        max-width: 100%;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .mode-btn.btn-pill {
-        padding: 0.35rem 0.85rem;
-        font-size: 0.85rem;
+    .mode-indicator-wrapper {
+        margin-bottom: 1rem !important;
     }
 }
 
-/* Small Mobile Viewports (<= 576px) */
-@media (max-width: 576px) {
+/* Common Mobile Widths (<= 480px, including 320px, 360px Vivo Y16, 375px, 390px, 430px) */
+@media (max-width: 480px) {
     .navbar-landing, .navbar-session {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-left: 0.85rem !important;
+        padding-right: 0.85rem !important;
+    }
+
+    .session-code-pill span:first-child {
+        display: none; /* Hide 'Session:' text label on mobile to save horizontal space */
+    }
+
+    .navbar-session .btn-sm {
+        padding: 0.35rem 0.6rem;
     }
 
     .hero-title {
@@ -62,19 +100,13 @@
         padding: 0.6rem 1.25rem !important;
     }
 
-    /* Header session action buttons compact styling */
-    .navbar-session .btn-sm {
-        padding: 0.35rem 0.5rem;
-    }
-
-    /* Modals mobile scroll & padding safety */
     .modal-dialog {
-        margin: 0.75rem;
+        margin: 0.5rem;
     }
 
     .modal-content {
-        padding: 1.25rem !important;
-        max-height: 90vh;
+        padding: 1.15rem !important;
+        max-height: 85vh;
         overflow-y: auto;
     }
 
@@ -90,14 +122,14 @@
     }
 }
 
-/* Extra Small Viewports (<= 380px) */
-@media (max-width: 380px) {
+/* Extra Small Mobile Viewports (<= 360px, e.g. Vivo Y16 Portrait / 320px) */
+@media (max-width: 360px) {
     .brand-name {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
 
-    .session-code-pill span:first-child {
-        display: none; /* Hide 'Session:' text label on very small screens to fit code & buttons */
+    .timer-card {
+        padding: 1.25rem 0.85rem !important;
     }
 
     .timer-controls-row {
@@ -105,9 +137,39 @@
     }
 
     .btn-secondary-control {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        min-height: 42px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .navbar-session .btn-sm span.d-none.d-sm-inline {
+        display: none !important;
+    }
+}
+
+/* Mobile Landscape Orientation Adjustments (Short Viewport Heights <= 480px) */
+@media (max-height: 480px) and (orientation: landscape) {
+    .navbar-session, .navbar-landing {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .timer-card {
+        padding: 1rem !important;
+    }
+
+    .timer-display-wrapper {
+        width: clamp(160px, 35vh, 220px);
+        height: clamp(160px, 35vh, 220px);
+        margin: 0.5rem auto;
+    }
+
+    .timer-clock-text {
+        font-size: 2rem;
+    }
+
+    .timer-controls-row {
+        margin-top: 0.75rem !important;
     }
 }

@@ -30,13 +30,14 @@
     outline: none;
 }
 
-/* Buttons */
+/* Buttons & Touch Targets (44px Minimum) */
 .btn-orange {
     background-color: var(--color-accent);
     color: #FFFFFF !important;
     border: none;
     border-radius: var(--radius-md);
     min-height: 44px;
+    min-width: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -54,7 +55,9 @@
     border: 1px solid var(--color-border);
     color: var(--color-text-primary);
     border-radius: var(--radius-md);
-    min-height: 40px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 0.85rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -72,7 +75,9 @@
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: var(--color-danger);
     border-radius: var(--radius-md);
-    min-height: 40px;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 0.85rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -89,8 +94,8 @@
     border: none;
     color: var(--color-text-secondary);
     cursor: pointer;
-    min-width: 36px;
-    min-height: 36px;
+    min-width: 44px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -109,10 +114,10 @@
     border: 1px solid var(--color-border);
     color: var(--color-text-primary);
     border-radius: var(--radius-md);
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -141,7 +146,7 @@
     font-weight: 500;
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
-    min-height: 40px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -151,26 +156,6 @@
 .custom-tab-pills .nav-link.active {
     background-color: var(--color-accent);
     color: #FFFFFF !important;
-}
-
-.mode-btn.btn-pill {
-    background: transparent;
-    border: none;
-    color: var(--color-text-secondary);
-    border-radius: 20px;
-    padding: 0.4rem 1.25rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    min-height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-}
-
-.mode-btn.btn-pill:hover {
-    color: var(--color-text-primary);
 }
 
 /* Mode Status Badge (Informational) */
@@ -240,10 +225,10 @@
 .status-dot.reconnecting { background-color: var(--color-warning); box-shadow: 0 0 6px var(--color-warning); }
 .status-dot.disconnected { background-color: var(--color-danger); box-shadow: 0 0 6px var(--color-danger); }
 
-/* SVG Timer Ring */
+/* SVG Timer Ring — Fluid for both Portrait & Landscape */
 .timer-display-wrapper {
-    width: clamp(210px, 45vw, 280px);
-    height: clamp(210px, 45vw, 280px);
+    width: clamp(190px, min(45vw, 38vh), 280px);
+    height: clamp(190px, min(45vw, 38vh), 280px);
     margin: 0 auto;
 }
 
@@ -271,7 +256,7 @@
 .timer-circle-progress.long-break-mode { stroke: var(--color-long-break); filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.35)); }
 
 .timer-clock-text {
-    font-size: clamp(2.25rem, 6vw, 3.25rem);
+    font-size: clamp(2.2rem, 5.5vw, 3.25rem);
     color: var(--color-text-primary);
     line-height: 1;
 }
@@ -353,11 +338,15 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     color: var(--color-text-primary);
+    max-height: 85vh;
+    overflow-y: auto;
 }
 
 /* Modal Close Button */
 .modal-content .btn-close {
     opacity: 0.7;
+    min-width: 44px;
+    min-height: 44px;
     transition: opacity 0.2s;
 }
 [data-theme="dark"] .modal-content .btn-close {
@@ -368,10 +357,10 @@
 }
 
 .btn-counter {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     padding: 0;
     border-radius: var(--radius-sm);
     background-color: var(--color-surface);
@@ -410,6 +399,8 @@
 .form-switch .form-check-input {
     background-color: var(--color-border);
     border-color: var(--color-border);
+    width: 2.5em;
+    height: 1.35em;
 }
 .form-switch .form-check-input:checked {
     background-color: var(--color-accent);
