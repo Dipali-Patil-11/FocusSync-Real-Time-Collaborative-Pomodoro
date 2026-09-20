@@ -34,6 +34,9 @@ CREATE TABLE IF NOT EXISTS timers (
     started_at DOUBLE PRECISION NULL,
     target_end_time DOUBLE PRECISION NULL,
     completed_sessions INT NOT NULL DEFAULT 0,
+    total_focus_sessions INT NOT NULL DEFAULT 0,
+    total_completed_cycles INT NOT NULL DEFAULT 0,
+    total_focus_time_seconds INT NOT NULL DEFAULT 0,
     updated_at DOUBLE PRECISION NOT NULL
 );
 

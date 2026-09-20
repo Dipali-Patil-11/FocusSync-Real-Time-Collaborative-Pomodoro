@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="session-container min-vh-100 d-flex flex-column" data-session-code="{{ session_code }}" data-max-participants="5">
-    <!-- Top Header Navigation (Single Logo & Theme Toggle) -->
+    <!-- Top Header Navigation -->
     <header class="navbar-session py-3 px-3 px-md-4 border-bottom-custom bg-card">
         <div class="container-fluid d-flex align-items-center justify-content-between">
             <!-- Left: Logo & Brand -->
@@ -83,7 +83,7 @@
                     </span>
                 </div>
 
-                <!-- Mode Status Indicator (Informational, Non-Clickable) -->
+                <!-- Mode Status Indicator -->
                 <div class="mode-indicator-wrapper mb-4">
                     <span class="mode-status-badge badge rounded-pill px-4 py-2 font-monospace fs-6" id="timer-mode-badge" data-mode="FOCUS">FOCUS</span>
                 </div>
@@ -127,8 +127,39 @@
                 </div>
             </div>
 
-            <!-- Right Participants Side Column -->
+            <!-- Right Side Column: Focus Progress & Participants -->
             <div class="col-lg-5 col-xl-4">
+                <!-- Focus Progress Card -->
+                <div class="card-custom p-4 mb-4" id="focus-tracker-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h3 class="h6 fw-bold mb-0 d-flex align-items-center gap-2">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-orange"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                            Focus Progress
+                        </h3>
+                        <span class="badge bg-input border-custom text-orange font-monospace px-2.5 py-1 rounded-pill extra-small" id="tracker-cycle-badge">Cycle 1</span>
+                    </div>
+
+                    <div class="tracker-metrics-container d-flex flex-column gap-2">
+                        <div class="tracker-stat-row d-flex align-items-center justify-content-between p-2.5 rounded bg-input border-custom">
+                            <span class="text-secondary-custom small">Focus Sessions</span>
+                            <span class="fw-bold font-monospace text-orange fs-6" id="tracker-completed-sessions">0</span>
+                        </div>
+                        <div class="tracker-stat-row d-flex align-items-center justify-content-between p-2.5 rounded bg-input border-custom">
+                            <span class="text-secondary-custom small">Current Cycle</span>
+                            <span class="fw-bold font-monospace text-primary-custom fs-6" id="tracker-cycle-progress">0 / 4</span>
+                        </div>
+                        <div class="tracker-stat-row d-flex align-items-center justify-content-between p-2.5 rounded bg-input border-custom">
+                            <span class="text-secondary-custom small">Total Focus Time</span>
+                            <span class="fw-bold font-monospace text-primary-custom fs-6" id="tracker-total-time">0m</span>
+                        </div>
+                        <div class="tracker-stat-row d-flex align-items-center justify-content-between p-2.5 rounded bg-input border-custom">
+                            <span class="text-secondary-custom small">Cycles Completed</span>
+                            <span class="fw-bold font-monospace text-primary-custom fs-6" id="tracker-completed-cycles">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participants Card -->
                 <div class="card-custom p-4 mb-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h3 class="h6 fw-bold mb-0">Participants</h3>

@@ -285,6 +285,19 @@
     color: var(--color-text-primary);
 }
 
+/* Focus Tracker Progress Card */
+.tracker-stat-row {
+    background-color: var(--color-input);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1rem;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.tracker-stat-row:hover {
+    background-color: var(--color-surface-elevated);
+}
+
 /* Participant Cards */
 .participant-card {
     background-color: var(--color-input);

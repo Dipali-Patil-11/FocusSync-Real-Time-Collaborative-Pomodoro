@@ -118,6 +118,11 @@
         display: none; /* Hide 'Session:' text label on mobile to save horizontal space */
     }
 
+    .tracker-stat-row {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.85rem;
+    }
+
     .navbar-session .btn-sm {
         width: 34px;
         height: 34px;

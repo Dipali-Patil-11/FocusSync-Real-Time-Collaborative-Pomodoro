@@ -207,6 +207,9 @@ class PostgresRepository(BaseRepository):
                         started_at=row['started_at'],
                         target_end_time=row['target_end_time'],
                         completed_sessions=row['completed_sessions'],
+                        total_focus_sessions=row.get('total_focus_sessions', 0) if row.get('total_focus_sessions') is not None else 0,
+                        total_completed_cycles=row.get('total_completed_cycles', 0) if row.get('total_completed_cycles') is not None else 0,
+                        total_focus_time_seconds=row.get('total_focus_time_seconds', 0) if row.get('total_focus_time_seconds') is not None else 0,
                         updated_at=row['updated_at']
                     )
             return None
@@ -215,8 +218,8 @@ class PostgresRepository(BaseRepository):
 
     def save_timer(self, timer: TimerState) -> TimerState:
         sql = """
-            INSERT INTO timers (session_code, mode, status, duration, remaining_seconds, started_at, target_end_time, completed_sessions, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO timers (session_code, mode, status, duration, remaining_seconds, started_at, target_end_time, completed_sessions, total_focus_sessions, total_completed_cycles, total_focus_time_seconds, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_code) DO UPDATE SET
             mode = EXCLUDED.mode,
             status = EXCLUDED.status,
@@ -225,6 +228,9 @@ class PostgresRepository(BaseRepository):
             started_at = EXCLUDED.started_at,
             target_end_time = EXCLUDED.target_end_time,
             completed_sessions = EXCLUDED.completed_sessions,
+            total_focus_sessions = EXCLUDED.total_focus_sessions,
+            total_completed_cycles = EXCLUDED.total_completed_cycles,
+            total_focus_time_seconds = EXCLUDED.total_focus_time_seconds,
             updated_at = EXCLUDED.updated_at
         """
         conn = self._get_connection()
@@ -232,7 +238,9 @@ class PostgresRepository(BaseRepository):
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
                     timer.session_code, timer.mode, timer.status, timer.duration, timer.remaining_seconds,
-                    timer.started_at, timer.target_end_time, timer.completed_sessions, timer.updated_at
+                    timer.started_at, timer.target_end_time, timer.completed_sessions,
+                    timer.total_focus_sessions, timer.total_completed_cycles, timer.total_focus_time_seconds,
+                    timer.updated_at
                 ))
             return timer
         finally:

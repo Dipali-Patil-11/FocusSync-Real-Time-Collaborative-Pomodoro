@@ -17,10 +17,28 @@ window.TimerRenderer = {
         this.playIcon = document.getElementById('toggle-icon-play');
         this.pauseIcon = document.getElementById('toggle-icon-pause');
         
+        this.trackerCompletedSessionsEl = document.getElementById('tracker-completed-sessions');
+        this.trackerCycleProgressEl = document.getElementById('tracker-cycle-progress');
+        this.trackerTotalTimeEl = document.getElementById('tracker-total-time');
+        this.trackerCompletedCyclesEl = document.getElementById('tracker-completed-cycles');
+        this.trackerCycleBadgeEl = document.getElementById('tracker-cycle-badge');
+
         this.circumference = 2 * Math.PI * 120; // 753.98
         if (this.progressRing) {
             this.progressRing.style.strokeDasharray = `${this.circumference} ${this.circumference}`;
         }
+    },
+
+    formatTotalFocusTime: function(totalSeconds) {
+        if (!totalSeconds || totalSeconds <= 0) return '0m';
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        
+        if (hours > 0) {
+            return `${hours}h ${mins}m`;
+        }
+        return `${mins}m`;
     },
 
     updateSettings: function(settings) {
@@ -157,6 +175,29 @@ window.TimerRenderer = {
                 this.playIcon.classList.remove('d-none');
                 this.pauseIcon.classList.add('d-none');
             }
+        }
+
+        // Update Focus Progress Card Metrics
+        const totalSessions = this.timerState.total_focus_sessions || 0;
+        const totalCycles = this.timerState.total_completed_cycles || 0;
+        const totalTimeSecs = this.timerState.total_focus_time_seconds || 0;
+        const completedInCycle = this.timerState.completed_sessions || 0;
+        const interval = this.settings?.long_break_interval || 4;
+
+        if (this.trackerCompletedSessionsEl) {
+            this.trackerCompletedSessionsEl.textContent = totalSessions;
+        }
+        if (this.trackerCycleProgressEl) {
+            this.trackerCycleProgressEl.textContent = `${completedInCycle} / ${interval}`;
+        }
+        if (this.trackerTotalTimeEl) {
+            this.trackerTotalTimeEl.textContent = this.formatTotalFocusTime(totalTimeSecs);
+        }
+        if (this.trackerCompletedCyclesEl) {
+            this.trackerCompletedCyclesEl.textContent = totalCycles;
+        }
+        if (this.trackerCycleBadgeEl) {
+            this.trackerCycleBadgeEl.textContent = `Cycle ${totalCycles + 1}`;
         }
     }
 };

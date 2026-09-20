@@ -103,10 +103,13 @@ class TimerService:
             completed_mode = timer.mode
             interval = settings.long_break_interval if settings else 4
 
-            # Determine next mode & update completed_sessions count
+            # Determine next mode & update completed_sessions count and tracker metrics
             if completed_mode == TimerMode.FOCUS.value:
                 timer.completed_sessions += 1
+                timer.total_focus_sessions += 1
+                timer.total_focus_time_seconds += timer.duration
                 if timer.completed_sessions == interval:
+                    timer.total_completed_cycles += 1
                     next_mode = TimerMode.LONG_BREAK.value
                 else:
                     next_mode = TimerMode.SHORT_BREAK.value
