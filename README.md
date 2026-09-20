@@ -4,7 +4,7 @@ A real-time collaborative Pomodoro timer that helps two people focus together an
 
 ## 🌐 Live Demo
 
-**[🚀 Open FocusSync](https://focussync-real-time-collaborative.onrender.com/)** --Click here to Explore the Web......
+**[🚀 Open FocusSync](https://focussync-real-time-collaborative.onrender.com/)** — Click here to explore the web app.
 
 FocusSync is a real-time collaborative Pomodoro web application built for exactly two users. It allows two participants on different devices/networks to join a dedicated session and share one synchronized Pomodoro timer with instant controls (start, pause, resume, reset, skip, mode switching, custom duration settings, visual toast notifications, and synthesized sound tones).
 
@@ -22,7 +22,7 @@ FocusSync is a real-time collaborative Pomodoro web application built for exactl
 7. [Real-Time Notifications & Sound System](#real-time-notifications--sound-system)
 8. [Database Setup & In-Memory Fallback](#database-setup--in-memory-fallback)
 9. [Cloud & Render Deployment](#cloud--render-deployment)
-10. [Docker & Docker Compose Instructions](#docker--docker-compose-instructions)
+10. [Docker & Container Instructions](#docker--container-instructions)
 11. [API Endpoints & Socket.IO Events](#api-endpoints--socketio-events)
 12. [Automated & End-to-End Testing](#automated--end-to-end-testing)
 13. [Environment Variables](#environment-variables)
@@ -66,7 +66,7 @@ The project uses consistent, professional terminology across user interface text
   - **Short Break Mode**: Default 5 minutes (Green accent `#22C55E`)
   - **Long Break Mode**: Default 15 minutes (Blue accent `#38BDF8`)
 - **Real-Time Notifications & Sound Tones**: Visual toast notifications and synthesized Web Audio API sound tones for session start, completion, participant join, and participant leave.
-- **Settings Modal**: Interactive `+` and `-` counters for duration adjustments (Focus 1–60m, Short Break 1–30m, Long Break 1–45m), auto-start transitions toggle, and per-user sound notifications toggle.
+- **Settings Modal**: Interactive duration adjustments (Focus 1–60m, Short Break 1–30m, Long Break 1–45m), auto-start transitions toggle, and per-user sound notifications toggle.
 - **Invite Modal**: Quick copy button for shareable invite URL (`https://.../session/<code>`) and 6-character session code.
 
 ---
@@ -110,7 +110,7 @@ FocusSync/
 │   │   ├── timer_events.py
 │   │   └── presence_events.py
 │   ├── utilities/           # Helpers & infrastructure
-│   │   ├── db.py            # Database fallback detector & logger
+│   │   ├── db.py            # Database mode detector & logger
 │   │   ├── validators.py    # Username, session code & duration validators
 │   │   ├── constants.py     # TimerMode & TimerStatus Enums
 │   │   └── logger.py        # Structured logging setup
@@ -196,7 +196,7 @@ FocusSync supports two database modes:
    - Connects using `psycopg3` (`psycopg[binary]`).
    - Tables (`sessions`, `participants`, `timers`, `settings`) initialized safely via `database/init_db.py` using `database/schema.sql`.
    - Requires `DATABASE_SSLMODE=require` for Supabase connections.
-   - **Production Safety Guarantee**: If `DATABASE_HOST` is specified when `FLASK_DEBUG=False`, connection failures will cause startup to log an error and exit rather than silently switching to in-memory fallback.
+   - **Production Safety Guarantee**: If `DATABASE_HOST` is specified when `FLASK_DEBUG=False`, connection failures will log a critical error and throw an exception to prevent silent data loss.
 
 2. **In-Memory Fallback (Local Development Mode)**:
    - Activated automatically when `DATABASE_HOST` is omitted or empty in local development mode (`FLASK_DEBUG=True`).
@@ -233,7 +233,7 @@ The repository includes `render.yaml` for blueprint deployments and `Procfile` f
 
 ---
 
-## Docker & Docker Compose Instructions
+## Docker & Container Instructions
 
 To build and run the web application container locally:
 
@@ -249,7 +249,7 @@ Services started:
 ## API Endpoints & Socket.IO Events
 
 ### REST API Endpoints
-- `GET /api/health`: Healthcheck & database status (`PostgreSQL/Supabase` or `In-Memory Fallback`)
+- `GET /api/health`: Healthcheck & database status (`Supabase PostgreSQL` or `In-Memory Fallback`)
 - `POST /api/sessions/create`: Create a new session with username
 - `POST /api/sessions/join`: Join an existing session code with username
 - `GET /api/sessions/<code>`: Fetch current session state and participant metadata
