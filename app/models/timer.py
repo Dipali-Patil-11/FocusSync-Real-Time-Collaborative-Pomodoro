@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import time
 from app.utilities.constants import TimerMode, TimerStatus
 
 @dataclass
 class TimerState:
-    room_code: str
+    session_code: str
     mode: str = TimerMode.FOCUS.value
     status: str = TimerStatus.IDLE.value
     duration: int = 1500  # 25 minutes in seconds
@@ -29,7 +28,7 @@ class TimerState:
     def to_dict(self):
         current_rem = self.calculate_current_remaining()
         return {
-            "room_code": self.room_code,
+            "session_code": self.session_code,
             "mode": self.mode,
             "status": self.status,
             "duration": self.duration,

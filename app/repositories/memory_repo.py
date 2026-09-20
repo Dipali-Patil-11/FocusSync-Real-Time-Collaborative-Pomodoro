@@ -2,38 +2,38 @@ from typing import Optional, List, Dict
 import threading
 from datetime import datetime
 from app.repositories.base import BaseRepository
-from app.models.room import Room
+from app.models.session import Session
 from app.models.participant import Participant
 from app.models.timer import TimerState
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 
 class MemoryRepository(BaseRepository):
     def __init__(self):
         self._lock = threading.RLock()
-        self._rooms: Dict[str, Room] = {}
+        self._sessions: Dict[str, Session] = {}
         self._participants: Dict[str, Participant] = {}  # key: participant_token
-        self._timers: Dict[str, TimerState] = {}          # key: room_code
-        self._settings: Dict[str, RoomSettings] = {}      # key: room_code
+        self._timers: Dict[str, TimerState] = {}          # key: session_code
+        self._settings: Dict[str, SessionSettings] = {}      # key: session_code
 
-    def create_room(self, room: Room) -> Room:
+    def create_session(self, session: Session) -> Session:
         with self._lock:
-            self._rooms[room.room_code] = room
-            return room
+            self._sessions[session.session_code] = session
+            return session
 
-    def get_room(self, room_code: str) -> Optional[Room]:
+    def get_session(self, session_code: str) -> Optional[Session]:
         with self._lock:
-            return self._rooms.get(room_code)
+            return self._sessions.get(session_code)
 
-    def delete_room(self, room_code: str) -> bool:
+    def delete_session(self, session_code: str) -> bool:
         with self._lock:
-            if room_code in self._rooms:
-                del self._rooms[room_code]
+            if session_code in self._sessions:
+                del self._sessions[session_code]
                 # Clean up associated participants, timer, settings
-                tokens_to_del = [t for t, p in self._participants.items() if p.room_code == room_code]
+                tokens_to_del = [t for t, p in self._participants.items() if p.session_code == session_code]
                 for t in tokens_to_del:
                     del self._participants[t]
-                self._timers.pop(room_code, None)
-                self._settings.pop(room_code, None)
+                self._timers.pop(session_code, None)
+                self._settings.pop(session_code, None)
                 return True
             return False
 
@@ -46,9 +46,9 @@ class MemoryRepository(BaseRepository):
         with self._lock:
             return self._participants.get(participant_token)
 
-    def get_participants_by_room(self, room_code: str) -> List[Participant]:
+    def get_participants_by_session(self, session_code: str) -> List[Participant]:
         with self._lock:
-            return [p for p in self._participants.values() if p.room_code == room_code]
+            return [p for p in self._participants.values() if p.session_code == session_code]
 
     def update_participant_presence(self, participant_token: str, is_online: bool, sid: Optional[str] = None) -> Optional[Participant]:
         with self._lock:
@@ -75,20 +75,20 @@ class MemoryRepository(BaseRepository):
                 return True
             return False
 
-    def get_timer(self, room_code: str) -> Optional[TimerState]:
+    def get_timer(self, session_code: str) -> Optional[TimerState]:
         with self._lock:
-            return self._timers.get(room_code)
+            return self._timers.get(session_code)
 
     def save_timer(self, timer: TimerState) -> TimerState:
         with self._lock:
-            self._timers[timer.room_code] = timer
+            self._timers[timer.session_code] = timer
             return timer
 
-    def get_settings(self, room_code: str) -> Optional[RoomSettings]:
+    def get_settings(self, session_code: str) -> Optional[SessionSettings]:
         with self._lock:
-            return self._settings.get(room_code)
+            return self._settings.get(session_code)
 
-    def save_settings(self, settings: RoomSettings) -> RoomSettings:
+    def save_settings(self, settings: SessionSettings) -> SessionSettings:
         with self._lock:
-            self._settings[settings.room_code] = settings
+            self._settings[settings.session_code] = settings
             return settings

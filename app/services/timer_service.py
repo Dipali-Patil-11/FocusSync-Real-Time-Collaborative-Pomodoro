@@ -3,7 +3,7 @@ import threading
 from typing import Optional, Tuple
 from app.repositories.base import BaseRepository
 from app.models.timer import TimerState
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 from app.utilities.constants import TimerMode, TimerStatus
 
 class TimerService:
@@ -11,13 +11,13 @@ class TimerService:
         self.repo = repository
         self._lock = threading.RLock()
 
-    def get_or_create_timer(self, room_code: str, settings: Optional[RoomSettings] = None) -> TimerState:
+    def get_or_create_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> TimerState:
         with self._lock:
-            timer = self.repo.get_timer(room_code)
+            timer = self.repo.get_timer(session_code)
             if not timer:
                 focus_duration = (settings.focus_duration if settings else 25) * 60
                 timer = TimerState(
-                    room_code=room_code,
+                    session_code=session_code,
                     mode=TimerMode.FOCUS.value,
                     status=TimerStatus.IDLE.value,
                     duration=focus_duration,
@@ -37,9 +37,9 @@ class TimerService:
                         self.repo.save_timer(timer)
             return timer
 
-    def start_timer(self, room_code: str) -> Tuple[bool, str, TimerState]:
+    def start_timer(self, session_code: str) -> Tuple[bool, str, TimerState]:
         with self._lock:
-            timer = self.get_or_create_timer(room_code)
+            timer = self.get_or_create_timer(session_code)
             now = time.time()
 
             if timer.status == TimerStatus.RUNNING.value:
@@ -56,9 +56,9 @@ class TimerService:
             saved = self.repo.save_timer(timer)
             return True, "Timer started", saved
 
-    def pause_timer(self, room_code: str) -> Tuple[bool, str, TimerState]:
+    def pause_timer(self, session_code: str) -> Tuple[bool, str, TimerState]:
         with self._lock:
-            timer = self.get_or_create_timer(room_code)
+            timer = self.get_or_create_timer(session_code)
             now = time.time()
 
             if timer.status != TimerStatus.RUNNING.value:
@@ -73,12 +73,12 @@ class TimerService:
             saved = self.repo.save_timer(timer)
             return True, "Timer paused", saved
 
-    def resume_timer(self, room_code: str) -> Tuple[bool, str, TimerState]:
-        return self.start_timer(room_code)
+    def resume_timer(self, session_code: str) -> Tuple[bool, str, TimerState]:
+        return self.start_timer(session_code)
 
-    def reset_timer(self, room_code: str) -> Tuple[bool, str, TimerState]:
+    def reset_timer(self, session_code: str) -> Tuple[bool, str, TimerState]:
         with self._lock:
-            timer = self.get_or_create_timer(room_code)
+            timer = self.get_or_create_timer(session_code)
             now = time.time()
 
             timer.status = TimerStatus.IDLE.value
@@ -90,9 +90,9 @@ class TimerService:
             saved = self.repo.save_timer(timer)
             return True, "Timer reset", saved
 
-    def skip_timer(self, room_code: str, settings: Optional[RoomSettings] = None) -> Tuple[bool, str, TimerState]:
+    def skip_timer(self, session_code: str, settings: Optional[SessionSettings] = None) -> Tuple[bool, str, TimerState]:
         with self._lock:
-            timer = self.get_or_create_timer(room_code, settings)
+            timer = self.get_or_create_timer(session_code, settings)
             
             # Rotate modes: FOCUS -> SHORT_BREAK -> FOCUS (or LONG_BREAK every 4 sessions)
             if timer.mode == TimerMode.FOCUS.value:
@@ -103,11 +103,11 @@ class TimerService:
             else:
                 next_mode = TimerMode.FOCUS.value
 
-            return self.change_mode(room_code, next_mode, settings)
+            return self.change_mode(session_code, next_mode, settings)
 
-    def change_mode(self, room_code: str, new_mode: str, settings: Optional[RoomSettings] = None) -> Tuple[bool, str, TimerState]:
+    def change_mode(self, session_code: str, new_mode: str, settings: Optional[SessionSettings] = None) -> Tuple[bool, str, TimerState]:
         with self._lock:
-            timer = self.get_or_create_timer(room_code, settings)
+            timer = self.get_or_create_timer(session_code, settings)
             if new_mode not in [TimerMode.FOCUS.value, TimerMode.SHORT_BREAK.value, TimerMode.LONG_BREAK.value]:
                 return False, "Invalid mode", timer
 
@@ -134,9 +134,9 @@ class TimerService:
             saved = self.repo.save_timer(timer)
             return True, f"Mode changed to {new_mode}", saved
 
-    def update_durations_from_settings(self, room_code: str, settings: RoomSettings) -> TimerState:
+    def update_durations_from_settings(self, session_code: str, settings: SessionSettings) -> TimerState:
         with self._lock:
-            timer = self.get_or_create_timer(room_code, settings)
+            timer = self.get_or_create_timer(session_code, settings)
             duration_mins = settings.focus_duration
             if timer.mode == TimerMode.SHORT_BREAK.value:
                 duration_mins = settings.short_break_duration

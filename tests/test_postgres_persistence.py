@@ -6,10 +6,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from app.config import Config
 from app.repositories.postgres_repo import PostgresRepository
-from app.models.room import Room, generate_room_code
+from app.models.session import Session, generate_session_code
 from app.models.participant import Participant
 from app.models.timer import TimerState
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 
 def verify_postgres_configuration():
     print("==================================================")
@@ -59,16 +59,16 @@ def verify_postgres_configuration():
         repo = PostgresRepository(db_config)
         code = "PGTEST"
 
-        # 1. Room Persistence
-        room = Room(room_code=code, creator_token="token-pg-1")
-        repo.create_room(room)
-        fetched_room = repo.get_room(code)
-        assert fetched_room is not None
-        assert fetched_room.room_code == code
-        print("[OK] PostgreSQL Room Persistence Verified")
+        # 1. Session Persistence
+        session = Session(session_code=code, creator_token="token-pg-1")
+        repo.create_session(session)
+        fetched_session = repo.get_session(code)
+        assert fetched_session is not None
+        assert fetched_session.session_code == code
+        print("[OK] PostgreSQL Session Persistence Verified")
 
         # 2. Participant Persistence
-        p = Participant(participant_token="token-pg-1", room_code=code, username="PGUser", slot=1)
+        p = Participant(participant_token="token-pg-1", session_code=code, username="PGUser", slot=1)
         repo.add_participant(p)
         fetched_p = repo.get_participant("token-pg-1")
         assert fetched_p is not None
@@ -76,7 +76,7 @@ def verify_postgres_configuration():
         print("[OK] PostgreSQL Participant Persistence Verified")
 
         # 3. Timer Persistence
-        t = TimerState(room_code=code, mode="FOCUS", duration=1500, remaining_seconds=1500)
+        t = TimerState(session_code=code, mode="FOCUS", duration=1500, remaining_seconds=1500)
         repo.save_timer(t)
         fetched_t = repo.get_timer(code)
         assert fetched_t is not None
@@ -84,15 +84,15 @@ def verify_postgres_configuration():
         print("[OK] PostgreSQL Timer Persistence Verified")
 
         # 4. Settings Persistence
-        s = RoomSettings(room_code=code, focus_duration=30)
+        s = SessionSettings(session_code=code, focus_duration=30)
         repo.save_settings(s)
         fetched_s = repo.get_settings(code)
         assert fetched_s is not None
         assert fetched_s.focus_duration == 30
         print("[OK] PostgreSQL Settings Persistence Verified")
 
-        # Clean up test room
-        repo.delete_room(code)
+        # Clean up test session
+        repo.delete_session(code)
         print("==================================================")
         print("DATABASE MODE: SUPABASE POSTGRESQL — ALL PERSISTENCE TESTS PASSED!")
         print("==================================================")
@@ -116,4 +116,3 @@ def test_postgres_persistence():
 
 if __name__ == '__main__':
     verify_postgres_configuration()
-

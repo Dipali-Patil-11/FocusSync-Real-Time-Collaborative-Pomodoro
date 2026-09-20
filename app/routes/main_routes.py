@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from app.utilities.db import get_repository
-from app.services.room_service import RoomService
+from app.services.session_service import SessionService
 
 main_bp = Blueprint('main', __name__)
 
@@ -8,14 +8,14 @@ main_bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
-@main_bp.route('/room/<room_code>')
-def room_page(room_code):
+@main_bp.route('/session/<session_code>')
+def session_page(session_code):
     repo = get_repository()
-    room_service = RoomService(repo)
-    state = room_service.get_room_state(room_code.upper())
+    session_service = SessionService(repo)
+    state = session_service.get_session_state(session_code.upper())
     
     if not state:
         # Redirect to landing page with error flag
-        return redirect(url_for('main.index', error='room_not_found', code=room_code))
+        return redirect(url_for('main.index', error='session_not_found', code=session_code))
 
-    return render_template('room.html', room_code=room_code.upper())
+    return render_template('session.html', session_code=session_code.upper())

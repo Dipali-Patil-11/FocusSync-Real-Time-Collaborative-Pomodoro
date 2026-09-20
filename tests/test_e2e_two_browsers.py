@@ -14,13 +14,13 @@ def run_two_browser_verification():
     assert res.status_code == 200
     print(f"[OK] Server Health Check Passed: {res.json()}")
 
-    # 2. Browser 1 creates room as Dipali
-    res_create = requests.post(f"{SERVER_URL}/api/rooms/create", json={"username": "Dipali"})
+    # 2. Browser 1 creates session as Dipali
+    res_create = requests.post(f"{SERVER_URL}/api/sessions/create", json={"username": "Dipali"})
     assert res_create.status_code == 201
     create_data = res_create.json()["data"]
-    room_code = create_data["room_code"]
+    session_code = create_data["session_code"]
     user1_token = create_data["participant_token"]
-    print(f"[OK] Browser 1 (Dipali) created room {room_code}")
+    print(f"[OK] Browser 1 (Dipali) created session {session_code}")
 
     # Connect Browser 1 Socket
     sio1 = socketio.Client()
@@ -31,14 +31,14 @@ def run_two_browser_verification():
         events_b1.append((event, data))
 
     sio1.connect(SERVER_URL, transports=['polling', 'websocket'])
-    sio1.emit('join_room', {
-        'room_code': room_code,
+    sio1.emit('join_session', {
+        'session_code': session_code,
         'username': 'Dipali',
         'participant_token': user1_token
     })
     time.sleep(0.3)
 
-    # 3. Browser 2 joins room as TestUser
+    # 3. Browser 2 joins session as TestUser
     sio2 = socketio.Client()
     events_b2 = []
 
@@ -48,8 +48,8 @@ def run_two_browser_verification():
 
     events_b1.clear()
     sio2.connect(SERVER_URL, transports=['polling', 'websocket'])
-    sio2.emit('join_room', {
-        'room_code': room_code,
+    sio2.emit('join_session', {
+        'session_code': session_code,
         'username': 'TestUser'
     })
     time.sleep(0.5)
@@ -70,7 +70,7 @@ def run_two_browser_verification():
     # 4. FOCUS TIMER START NOTIFICATION
     events_b1.clear()
     events_b2.clear()
-    sio1.emit('timer_start', {'room_code': room_code})
+    sio1.emit('timer_start', {'session_code': session_code})
     time.sleep(0.3)
 
     start_notifs_b1 = [d for e, d in events_b1 if e == 'timer_started_notification']
@@ -86,9 +86,9 @@ def run_two_browser_verification():
     # 5. SHORT BREAK START NOTIFICATION
     events_b1.clear()
     events_b2.clear()
-    sio1.emit('timer_change_mode', {'room_code': room_code, 'mode': 'SHORT_BREAK'})
+    sio1.emit('timer_change_mode', {'session_code': session_code, 'mode': 'SHORT_BREAK'})
     time.sleep(0.2)
-    sio1.emit('timer_start', {'room_code': room_code})
+    sio1.emit('timer_start', {'session_code': session_code})
     time.sleep(0.3)
 
     break_notifs_b1 = [d for e, d in events_b1 if e == 'timer_started_notification']
@@ -103,9 +103,9 @@ def run_two_browser_verification():
     # 6. LONG BREAK START NOTIFICATION
     events_b1.clear()
     events_b2.clear()
-    sio1.emit('timer_change_mode', {'room_code': room_code, 'mode': 'LONG_BREAK'})
+    sio1.emit('timer_change_mode', {'session_code': session_code, 'mode': 'LONG_BREAK'})
     time.sleep(0.2)
-    sio1.emit('timer_start', {'room_code': room_code})
+    sio1.emit('timer_start', {'session_code': session_code})
     time.sleep(0.3)
 
     long_notifs_b1 = [d for e, d in events_b1 if e == 'timer_started_notification']
@@ -120,7 +120,7 @@ def run_two_browser_verification():
     # 7. TIMER COMPLETION NOTIFICATION
     events_b1.clear()
     events_b2.clear()
-    sio1.emit('timer_complete', {'room_code': room_code})
+    sio1.emit('timer_complete', {'session_code': session_code})
     time.sleep(0.3)
 
     comp_notifs_b1 = [d for e, d in events_b1 if e == 'timer_completed_notification']
@@ -134,7 +134,7 @@ def run_two_browser_verification():
     # 8. USER LEAVE NOTIFICATION
     events_b1.clear()
     user2_token = [p['participant_token'] for p in join_events_b1[0]['participants'] if p['username'] == 'TestUser'][0]
-    sio2.emit('leave_room', {'room_code': room_code, 'participant_token': user2_token})
+    sio2.emit('leave_session', {'session_code': session_code, 'participant_token': user2_token})
     time.sleep(0.4)
 
     leave_events_b1 = [d for e, d in events_b1 if e == 'participant_left']

@@ -1,43 +1,43 @@
 window.ApiClient = {
-    createRoom: async function(username) {
+    createSession: async function(username) {
         try {
-            const response = await fetch('/api/rooms/create', {
+            const response = await fetch('/api/sessions/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: username })
             });
             return await response.json();
         } catch (error) {
-            console.error('API createRoom error:', error);
-            return { success: false, message: 'Network error creating room.' };
+            console.error('API createSession error:', error);
+            return { success: false, message: 'Network error creating session.' };
         }
     },
 
-    joinRoom: async function(roomCode, username, participantToken = null) {
+    joinSession: async function(sessionCode, username, participantToken = null) {
         try {
-            const response = await fetch('/api/rooms/join', {
+            const response = await fetch('/api/sessions/join', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    room_code: roomCode,
+                    session_code: sessionCode,
                     username: username,
                     participant_token: participantToken
                 })
             });
             return await response.json();
         } catch (error) {
-            console.error('API joinRoom error:', error);
-            return { success: false, message: 'Network error joining room.' };
+            console.error('API joinSession error:', error);
+            return { success: false, message: 'Network error joining session.' };
         }
     },
 
-    getRoomInfo: async function(roomCode) {
+    getSessionInfo: async function(sessionCode) {
         try {
-            const response = await fetch(`/api/rooms/${roomCode}`);
+            const response = await fetch(`/api/sessions/${sessionCode}`);
             return await response.json();
         } catch (error) {
-            console.error('API getRoomInfo error:', error);
-            return { success: false, message: 'Network error fetching room info.' };
+            console.error('API getSessionInfo error:', error);
+            return { success: false, message: 'Network error fetching session info.' };
         }
     }
 };

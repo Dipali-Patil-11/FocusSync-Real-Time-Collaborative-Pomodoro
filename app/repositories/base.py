@@ -1,23 +1,23 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
-from app.models.room import Room
+from app.models.session import Session
 from app.models.participant import Participant
 from app.models.timer import TimerState
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 
 class BaseRepository(ABC):
 
-    # Room operations
+    # Session operations
     @abstractmethod
-    def create_room(self, room: Room) -> Room:
+    def create_session(self, session: Session) -> Session:
         pass
 
     @abstractmethod
-    def get_room(self, room_code: str) -> Optional[Room]:
+    def get_session(self, session_code: str) -> Optional[Session]:
         pass
 
     @abstractmethod
-    def delete_room(self, room_code: str) -> bool:
+    def delete_session(self, session_code: str) -> bool:
         pass
 
     # Participant operations
@@ -30,7 +30,7 @@ class BaseRepository(ABC):
         pass
 
     @abstractmethod
-    def get_participants_by_room(self, room_code: str) -> List[Participant]:
+    def get_participants_by_session(self, session_code: str) -> List[Participant]:
         pass
 
     @abstractmethod
@@ -47,7 +47,7 @@ class BaseRepository(ABC):
 
     # Timer operations
     @abstractmethod
-    def get_timer(self, room_code: str) -> Optional[TimerState]:
+    def get_timer(self, session_code: str) -> Optional[TimerState]:
         pass
 
     @abstractmethod
@@ -56,9 +56,9 @@ class BaseRepository(ABC):
 
     # Settings operations
     @abstractmethod
-    def get_settings(self, room_code: str) -> Optional[RoomSettings]:
+    def get_settings(self, session_code: str) -> Optional[SessionSettings]:
         pass
 
     @abstractmethod
-    def save_settings(self, settings: RoomSettings) -> RoomSettings:
+    def save_settings(self, settings: SessionSettings) -> SessionSettings:
         pass

@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-import uuid
 
 @dataclass
 class Participant:
     participant_token: str
-    room_code: str
+    session_code: str
     username: str
     slot: int  # 1 or 2
     is_online: bool = True
@@ -16,7 +15,7 @@ class Participant:
     def to_dict(self):
         return {
             "participant_token": self.participant_token,
-            "room_code": self.room_code,
+            "session_code": self.session_code,
             "username": self.username,
             "slot": self.slot,
             "is_online": self.is_online,

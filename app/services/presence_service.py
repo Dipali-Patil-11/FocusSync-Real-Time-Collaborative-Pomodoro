@@ -18,5 +18,5 @@ class PresenceService:
             return self.repo.update_participant_presence(p.participant_token, is_online=False, sid=None)
         return None
 
-    def get_room_participants(self, room_code: str) -> List[Participant]:
-        return self.repo.get_participants_by_room(room_code)
+    def get_session_participants(self, session_code: str) -> List[Participant]:
+        return self.repo.get_participants_by_session(session_code)

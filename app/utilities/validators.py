@@ -15,13 +15,13 @@ def validate_username(username: str) -> tuple[bool, str]:
         
     return True, cleaned
 
-def validate_room_code(code: str) -> tuple[bool, str]:
+def validate_session_code(code: str) -> tuple[bool, str]:
     if not code or not isinstance(code, str):
-        return False, "Room code is required."
+        return False, "Session code is required."
         
     cleaned = code.strip().upper()
     if not re.match(r'^[A-Z0-9]{6}$', cleaned):
-        return False, "Room code must be exactly 6 alphanumeric characters."
+        return False, "Session code must be exactly 6 alphanumeric characters."
         
     return True, cleaned
 

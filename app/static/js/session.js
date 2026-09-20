@@ -1,15 +1,15 @@
-window.RoomManager = {
-    roomCode: null,
+window.SessionManager = {
+    sessionCode: null,
     participantToken: null,
     username: null,
 
     init: function() {
-        const container = document.querySelector('.room-container');
-        if (!container) return; // Not on room page
+        const container = document.querySelector('.session-container');
+        if (!container) return; // Not on session page
 
-        this.roomCode = container.dataset.roomCode;
-        this.participantToken = sessionStorage.getItem(`focussync_token_${this.roomCode}`);
-        this.username = sessionStorage.getItem(`focussync_user_${this.roomCode}`) || localStorage.getItem('focussync_username');
+        this.sessionCode = container.dataset.sessionCode;
+        this.participantToken = sessionStorage.getItem(`focussync_token_${this.sessionCode}`);
+        this.username = sessionStorage.getItem(`focussync_user_${this.sessionCode}`) || localStorage.getItem('focussync_username');
 
         window.TimerRenderer.init();
         window.ModalController.init();
@@ -21,12 +21,12 @@ window.RoomManager = {
     connectAndJoin: function() {
         // If user navigated directly via URL without username in session, prompt
         if (!this.username) {
-            const promptedName = prompt('Enter your name to join this Focus Room:');
+            const promptedName = prompt('Enter your name to join this Focus Session:');
             if (promptedName && promptedName.trim().length >= 2) {
                 this.username = promptedName.trim();
                 localStorage.setItem('focussync_username', this.username);
             } else {
-                window.location.href = `/?error=name_required&code=${this.roomCode}`;
+                window.location.href = `/?error=name_required&code=${this.sessionCode}`;
                 return;
             }
         }
@@ -34,10 +34,10 @@ window.RoomManager = {
         // Initialize Socket.IO connection
         window.SocketClient.init();
 
-        // Emit join_room when socket connects
+        // Emit join_session when socket connects
         window.SocketClient.on('connect', () => {
-            window.SocketClient.emit('join_room', {
-                room_code: this.roomCode,
+            window.SocketClient.emit('join_session', {
+                session_code: this.sessionCode,
                 username: this.username,
                 participant_token: this.participantToken
             });
@@ -51,7 +51,7 @@ window.RoomManager = {
                 const mode = e.target.dataset.mode;
                 if (mode) {
                     window.SocketClient.emit('timer_change_mode', {
-                        room_code: this.roomCode,
+                        session_code: this.sessionCode,
                         mode: mode
                     });
                 }
@@ -64,11 +64,11 @@ window.RoomManager = {
             toggleBtn.addEventListener('click', () => {
                 const currentStatus = window.TimerRenderer.timerState?.status;
                 if (currentStatus === 'RUNNING') {
-                    window.SocketClient.emit('timer_pause', { room_code: this.roomCode });
+                    window.SocketClient.emit('timer_pause', { session_code: this.sessionCode });
                 } else if (currentStatus === 'PAUSED') {
-                    window.SocketClient.emit('timer_resume', { room_code: this.roomCode });
+                    window.SocketClient.emit('timer_resume', { session_code: this.sessionCode });
                 } else {
-                    window.SocketClient.emit('timer_start', { room_code: this.roomCode });
+                    window.SocketClient.emit('timer_start', { session_code: this.sessionCode });
                 }
             });
         }
@@ -77,7 +77,7 @@ window.RoomManager = {
         const resetBtn = document.getElementById('btn-timer-reset');
         if (resetBtn) {
             resetBtn.addEventListener('click', () => {
-                window.SocketClient.emit('timer_reset', { room_code: this.roomCode });
+                window.SocketClient.emit('timer_reset', { session_code: this.sessionCode });
             });
         }
 
@@ -85,31 +85,31 @@ window.RoomManager = {
         const skipBtn = document.getElementById('btn-timer-skip');
         if (skipBtn) {
             skipBtn.addEventListener('click', () => {
-                window.SocketClient.emit('timer_skip', { room_code: this.roomCode });
+                window.SocketClient.emit('timer_skip', { session_code: this.sessionCode });
             });
         }
 
-        // Leave Room Button
+        // Leave Session Button
         const leaveBtn = document.getElementById('btn-leave');
         if (leaveBtn) {
             leaveBtn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to leave this focus room?')) {
-                    window.SocketClient.emit('leave_room', {
-                        room_code: this.roomCode,
+                if (confirm('Are you sure you want to leave this focus session?')) {
+                    window.SocketClient.emit('leave_session', {
+                        session_code: this.sessionCode,
                         participant_token: this.participantToken
                     });
-                    sessionStorage.removeItem(`focussync_token_${this.roomCode}`);
+                    sessionStorage.removeItem(`focussync_token_${this.sessionCode}`);
                     window.location.href = '/';
                 }
             });
         }
 
         // Socket Events
-        window.SocketClient.on('room_state', (data) => {
+        window.SocketClient.on('session_state', (data) => {
             if (data.participant_token) {
                 this.participantToken = data.participant_token;
-                sessionStorage.setItem(`focussync_token_${this.roomCode}`, data.participant_token);
-                sessionStorage.setItem(`focussync_user_${this.roomCode}`, this.username);
+                sessionStorage.setItem(`focussync_token_${this.sessionCode}`, data.participant_token);
+                sessionStorage.setItem(`focussync_user_${this.sessionCode}`, this.username);
             }
             if (data.participants) {
                 this.renderParticipants(data.participants);
@@ -124,7 +124,7 @@ window.RoomManager = {
 
         window.SocketClient.on('participant_joined', (data) => {
             if (data.participants) this.renderParticipants(data.participants);
-            const msg = data.message || `${data.username} joined the focus room`;
+            const msg = data.message || `${data.username} joined the focus session`;
             this.setNotification(msg);
             
             window.NotificationManager.showNotificationToast({
@@ -138,7 +138,7 @@ window.RoomManager = {
 
         window.SocketClient.on('participant_left', (data) => {
             if (data.participants) this.renderParticipants(data.participants);
-            const msg = data.message || `${data.username} left the focus room`;
+            const msg = data.message || `${data.username} left the focus session`;
             this.setNotification(msg);
 
             window.NotificationManager.showNotificationToast({
@@ -211,18 +211,18 @@ window.RoomManager = {
             this.setNotification('Timer settings updated');
         });
 
-        window.SocketClient.on('room_full', (data) => {
-            const modalEl = document.getElementById('roomFullModal');
+        window.SocketClient.on('session_capacity_reached', (data) => {
+            const modalEl = document.getElementById('sessionCapacityModal');
             if (modalEl) {
                 const bsModal = new bootstrap.Modal(modalEl);
                 bsModal.show();
             } else {
-                alert(data.message || 'Room is full');
+                alert(data.message || 'Session capacity reached');
                 window.location.href = '/';
             }
         });
 
-        window.SocketClient.on('room_error', (data) => {
+        window.SocketClient.on('session_error', (data) => {
             window.NotificationManager.showToast(data.message || 'An error occurred', 'error');
         });
     },

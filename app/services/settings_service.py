@@ -1,19 +1,19 @@
 from app.repositories.base import BaseRepository
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 from app.utilities.validators import validate_duration
 
 class SettingsService:
     def __init__(self, repository: BaseRepository):
         self.repo = repository
 
-    def get_or_create_settings(self, room_code: str) -> RoomSettings:
-        settings = self.repo.get_settings(room_code)
+    def get_or_create_settings(self, session_code: str) -> SessionSettings:
+        settings = self.repo.get_settings(session_code)
         if not settings:
-            settings = RoomSettings(room_code=room_code)
+            settings = SessionSettings(session_code=session_code)
             self.repo.save_settings(settings)
         return settings
 
-    def update_settings(self, room_code: str, focus_min: int, short_break_min: int, long_break_min: int, auto_start: bool, sound_enabled: bool) -> tuple[bool, str, RoomSettings]:
+    def update_settings(self, session_code: str, focus_min: int, short_break_min: int, long_break_min: int, auto_start: bool, sound_enabled: bool) -> tuple[bool, str, SessionSettings]:
         valid, msg = validate_duration(focus_min, "Focus duration")
         if not valid:
             return False, msg, None
@@ -26,8 +26,8 @@ class SettingsService:
         if not valid:
             return False, msg, None
 
-        settings = RoomSettings(
-            room_code=room_code,
+        settings = SessionSettings(
+            session_code=session_code,
             focus_duration=int(focus_min),
             short_break_duration=int(short_break_min),
             long_break_duration=int(long_break_min),

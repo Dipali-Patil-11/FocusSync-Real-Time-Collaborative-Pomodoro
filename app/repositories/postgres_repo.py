@@ -3,10 +3,10 @@ from psycopg.rows import dict_row
 from typing import Optional, List
 from datetime import datetime
 from app.repositories.base import BaseRepository
-from app.models.room import Room
+from app.models.session import Session
 from app.models.participant import Participant
 from app.models.timer import TimerState
-from app.models.settings import RoomSettings
+from app.models.settings import SessionSettings
 
 class PostgresRepository(BaseRepository):
     def __init__(self, db_config: dict):
@@ -24,11 +24,11 @@ class PostgresRepository(BaseRepository):
             connect_timeout=10
         )
 
-    def create_room(self, room: Room) -> Room:
+    def create_session(self, session: Session) -> Session:
         sql = """
-            INSERT INTO rooms (room_code, creator_token, status, created_at, updated_at)
+            INSERT INTO sessions (session_code, creator_token, status, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT (room_code) DO UPDATE SET
+            ON CONFLICT (session_code) DO UPDATE SET
             status = EXCLUDED.status,
             updated_at = EXCLUDED.updated_at
         """
@@ -36,23 +36,23 @@ class PostgresRepository(BaseRepository):
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    room.room_code, room.creator_token, room.status,
-                    room.created_at, room.updated_at
+                    session.session_code, session.creator_token, session.status,
+                    session.created_at, session.updated_at
                 ))
-            return room
+            return session
         finally:
             conn.close()
 
-    def get_room(self, room_code: str) -> Optional[Room]:
-        sql = "SELECT * FROM rooms WHERE room_code = %s"
+    def get_session(self, session_code: str) -> Optional[Session]:
+        sql = "SELECT * FROM sessions WHERE session_code = %s"
         conn = self._get_connection()
         try:
             with conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(sql, (room_code,))
+                cursor.execute(sql, (session_code,))
                 row = cursor.fetchone()
                 if row:
-                    return Room(
-                        room_code=row['room_code'],
+                    return Session(
+                        session_code=row['session_code'],
                         creator_token=row['creator_token'],
                         status=row['status'],
                         created_at=str(row['created_at']),
@@ -62,19 +62,19 @@ class PostgresRepository(BaseRepository):
         finally:
             conn.close()
 
-    def delete_room(self, room_code: str) -> bool:
-        sql = "DELETE FROM rooms WHERE room_code = %s"
+    def delete_session(self, session_code: str) -> bool:
+        sql = "DELETE FROM sessions WHERE session_code = %s"
         conn = self._get_connection()
         try:
             with conn.cursor() as cursor:
-                cursor.execute(sql, (room_code,))
+                cursor.execute(sql, (session_code,))
                 return cursor.rowcount > 0
         finally:
             conn.close()
 
     def add_participant(self, participant: Participant) -> Participant:
         sql = """
-            INSERT INTO participants (participant_token, room_code, username, slot, is_online, sid, joined_at, last_seen)
+            INSERT INTO participants (participant_token, session_code, username, slot, is_online, sid, joined_at, last_seen)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (participant_token) DO UPDATE SET
             username = EXCLUDED.username,
@@ -87,7 +87,7 @@ class PostgresRepository(BaseRepository):
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    participant.participant_token, participant.room_code, participant.username,
+                    participant.participant_token, participant.session_code, participant.username,
                     participant.slot, bool(participant.is_online), participant.sid,
                     participant.joined_at, participant.last_seen
                 ))
@@ -105,7 +105,7 @@ class PostgresRepository(BaseRepository):
                 if row:
                     return Participant(
                         participant_token=row['participant_token'],
-                        room_code=row['room_code'],
+                        session_code=row['session_code'],
                         username=row['username'],
                         slot=row['slot'],
                         is_online=bool(row['is_online']),
@@ -117,17 +117,17 @@ class PostgresRepository(BaseRepository):
         finally:
             conn.close()
 
-    def get_participants_by_room(self, room_code: str) -> List[Participant]:
-        sql = "SELECT * FROM participants WHERE room_code = %s ORDER BY slot ASC"
+    def get_participants_by_session(self, session_code: str) -> List[Participant]:
+        sql = "SELECT * FROM participants WHERE session_code = %s ORDER BY slot ASC"
         conn = self._get_connection()
         try:
             with conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(sql, (room_code,))
+                cursor.execute(sql, (session_code,))
                 rows = cursor.fetchall()
                 return [
                     Participant(
                         participant_token=row['participant_token'],
-                        room_code=row['room_code'],
+                        session_code=row['session_code'],
                         username=row['username'],
                         slot=row['slot'],
                         is_online=bool(row['is_online']),
@@ -168,7 +168,7 @@ class PostgresRepository(BaseRepository):
                 if row:
                     return Participant(
                         participant_token=row['participant_token'],
-                        room_code=row['room_code'],
+                        session_code=row['session_code'],
                         username=row['username'],
                         slot=row['slot'],
                         is_online=bool(row['is_online']),
@@ -190,16 +190,16 @@ class PostgresRepository(BaseRepository):
         finally:
             conn.close()
 
-    def get_timer(self, room_code: str) -> Optional[TimerState]:
-        sql = "SELECT * FROM timers WHERE room_code = %s"
+    def get_timer(self, session_code: str) -> Optional[TimerState]:
+        sql = "SELECT * FROM timers WHERE session_code = %s"
         conn = self._get_connection()
         try:
             with conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(sql, (room_code,))
+                cursor.execute(sql, (session_code,))
                 row = cursor.fetchone()
                 if row:
                     return TimerState(
-                        room_code=row['room_code'],
+                        session_code=row['session_code'],
                         mode=row['mode'],
                         status=row['status'],
                         duration=row['duration'],
@@ -215,9 +215,9 @@ class PostgresRepository(BaseRepository):
 
     def save_timer(self, timer: TimerState) -> TimerState:
         sql = """
-            INSERT INTO timers (room_code, mode, status, duration, remaining_seconds, started_at, target_end_time, completed_sessions, updated_at)
+            INSERT INTO timers (session_code, mode, status, duration, remaining_seconds, started_at, target_end_time, completed_sessions, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (room_code) DO UPDATE SET
+            ON CONFLICT (session_code) DO UPDATE SET
             mode = EXCLUDED.mode,
             status = EXCLUDED.status,
             duration = EXCLUDED.duration,
@@ -231,23 +231,23 @@ class PostgresRepository(BaseRepository):
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    timer.room_code, timer.mode, timer.status, timer.duration, timer.remaining_seconds,
+                    timer.session_code, timer.mode, timer.status, timer.duration, timer.remaining_seconds,
                     timer.started_at, timer.target_end_time, timer.completed_sessions, timer.updated_at
                 ))
             return timer
         finally:
             conn.close()
 
-    def get_settings(self, room_code: str) -> Optional[RoomSettings]:
-        sql = "SELECT * FROM settings WHERE room_code = %s"
+    def get_settings(self, session_code: str) -> Optional[SessionSettings]:
+        sql = "SELECT * FROM settings WHERE session_code = %s"
         conn = self._get_connection()
         try:
             with conn.cursor(row_factory=dict_row) as cursor:
-                cursor.execute(sql, (room_code,))
+                cursor.execute(sql, (session_code,))
                 row = cursor.fetchone()
                 if row:
-                    return RoomSettings(
-                        room_code=row['room_code'],
+                    return SessionSettings(
+                        session_code=row['session_code'],
                         focus_duration=row['focus_duration'],
                         short_break_duration=row['short_break_duration'],
                         long_break_duration=row['long_break_duration'],
@@ -258,11 +258,11 @@ class PostgresRepository(BaseRepository):
         finally:
             conn.close()
 
-    def save_settings(self, settings: RoomSettings) -> RoomSettings:
+    def save_settings(self, settings: SessionSettings) -> SessionSettings:
         sql = """
-            INSERT INTO settings (room_code, focus_duration, short_break_duration, long_break_duration, auto_start, sound_enabled)
+            INSERT INTO settings (session_code, focus_duration, short_break_duration, long_break_duration, auto_start, sound_enabled)
             VALUES (%s, %s, %s, %s, %s, %s)
-            ON CONFLICT (room_code) DO UPDATE SET
+            ON CONFLICT (session_code) DO UPDATE SET
             focus_duration = EXCLUDED.focus_duration,
             short_break_duration = EXCLUDED.short_break_duration,
             long_break_duration = EXCLUDED.long_break_duration,
@@ -273,7 +273,7 @@ class PostgresRepository(BaseRepository):
         try:
             with conn.cursor() as cursor:
                 cursor.execute(sql, (
-                    settings.room_code, settings.focus_duration, settings.short_break_duration, settings.long_break_duration,
+                    settings.session_code, settings.focus_duration, settings.short_break_duration, settings.long_break_duration,
                     bool(settings.auto_start), bool(settings.sound_enabled)
                 ))
             return settings

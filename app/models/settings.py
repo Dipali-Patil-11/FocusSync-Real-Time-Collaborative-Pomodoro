@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 @dataclass
-class RoomSettings:
-    room_code: str
+class SessionSettings:
+    session_code: str
     focus_duration: int = 25     # in minutes
     short_break_duration: int = 5 # in minutes
     long_break_duration: int = 15 # in minutes
@@ -11,7 +11,7 @@ class RoomSettings:
 
     def to_dict(self):
         return {
-            "room_code": self.room_code,
+            "session_code": self.session_code,
             "focus_duration": self.focus_duration,
             "short_break_duration": self.short_break_duration,
             "long_break_duration": self.long_break_duration,

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}FocusSync — Realtime Collaborative Pomodoro{% endblock %}
+{% block title %}FocusSync — Real-Time Collaborative Pomodoro{% endblock %}
 
 {% block content %}
 <div class="landing-container min-vh-100 d-flex flex-column">
@@ -32,7 +32,7 @@
                     <span class="text-orange">Stay in sync.</span>
                 </h1>
                 <p class="hero-desc mb-4">
-                    Share one synchronized Pomodoro timer with a partner. Start together, take breaks together, stay accountable.
+                    Share a synchronized Pomodoro timer with another participant. Start together, take breaks together, stay accountable.
                 </p>
                 
                 <div class="hero-features d-flex flex-column gap-3 mb-4">
@@ -52,7 +52,7 @@
                         <div class="feature-icon-wrapper">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
-                        <span>Private two-person focus rooms</span>
+                        <span>Dedicated two-person focus sessions</span>
                     </div>
                 </div>
             </div>
@@ -61,47 +61,47 @@
             <div class="col-lg-6">
                 <div class="card-custom auth-card p-4 p-md-5">
                     <!-- Tab Switcher -->
-                    <div class="nav nav-pills custom-tab-pills mb-4" id="roomTabs" role="tablist">
-                        <button class="nav-link active flex-fill" id="create-tab" data-bs-toggle="pill" data-bs-target="#create-pane" type="button" role="tab">Create Room</button>
-                        <button class="nav-link flex-fill" id="join-tab" data-bs-toggle="pill" data-bs-target="#join-pane" type="button" role="tab">Join Room</button>
+                    <div class="nav nav-pills custom-tab-pills mb-4" id="sessionTabs" role="tablist">
+                        <button class="nav-link active flex-fill" id="create-tab" data-bs-toggle="pill" data-bs-target="#create-pane" type="button" role="tab">Create Session</button>
+                        <button class="nav-link flex-fill" id="join-tab" data-bs-toggle="pill" data-bs-target="#join-pane" type="button" role="tab">Join Session</button>
                     </div>
 
-                    <div class="tab-content" id="roomTabsContent">
-                        <!-- Create Room Tab -->
+                    <div class="tab-content" id="sessionTabsContent">
+                        <!-- Create Session Tab -->
                         <div class="tab-pane fade show active" id="create-pane" role="tabpanel">
-                            <h2 class="h5 fw-bold mb-2">Create a Private Focus Room</h2>
-                            <p class="text-secondary-custom small mb-4">Start a new session and invite a partner to join.</p>
+                            <h2 class="h5 fw-bold mb-2">Create a Dedicated Focus Session</h2>
+                            <p class="text-secondary-custom small mb-4">Start a new session and invite another participant to join.</p>
 
-                            <form id="create-room-form">
+                            <form id="create-session-form">
                                 <div class="mb-4">
                                     <label for="create-username" class="form-label small text-secondary-custom">Your Display Name</label>
                                     <input type="text" class="form-control input-custom" id="create-username" placeholder="e.g. Alex" required minlength="2" maxlength="20">
                                 </div>
                                 <div id="create-error-alert" class="alert alert-danger-custom d-none mb-3" role="alert"></div>
-                                <button type="submit" id="btn-create-room" class="btn btn-orange w-100 py-3 fw-semibold">
-                                    <span class="btn-text">Create Room</span>
+                                <button type="submit" id="btn-create-session" class="btn btn-orange w-100 py-3 fw-semibold">
+                                    <span class="btn-text">Create Session</span>
                                     <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
                                 </button>
                             </form>
                         </div>
 
-                        <!-- Join Room Tab -->
+                        <!-- Join Session Tab -->
                         <div class="tab-pane fade" id="join-pane" role="tabpanel">
-                            <h2 class="h5 fw-bold mb-2">Join an Existing Room</h2>
-                            <p class="text-secondary-custom small mb-4">Enter your name and the 6-character room code.</p>
+                            <h2 class="h5 fw-bold mb-2">Join an Existing Session</h2>
+                            <p class="text-secondary-custom small mb-4">Enter your name and the 6-character session code.</p>
 
-                            <form id="join-room-form">
+                            <form id="join-session-form">
                                 <div class="mb-3">
                                     <label for="join-username" class="form-label small text-secondary-custom">Your Display Name</label>
                                     <input type="text" class="form-control input-custom" id="join-username" placeholder="e.g. Sam" required minlength="2" maxlength="20">
                                 </div>
                                 <div class="mb-4">
-                                    <label for="join-room-code" class="form-label small text-secondary-custom">Room Code</label>
-                                    <input type="text" class="form-control input-custom font-monospace text-uppercase" id="join-room-code" placeholder="e.g. X7K9P2" required maxlength="6">
+                                    <label for="join-session-code" class="form-label small text-secondary-custom">Session Code</label>
+                                    <input type="text" class="form-control input-custom font-monospace text-uppercase" id="join-session-code" placeholder="e.g. X7K9P2" required maxlength="6">
                                 </div>
                                 <div id="join-error-alert" class="alert alert-danger-custom d-none mb-3" role="alert"></div>
-                                <button type="submit" id="btn-join-room" class="btn btn-orange w-100 py-3 fw-semibold">
-                                    <span class="btn-text">Join Focus Room</span>
+                                <button type="submit" id="btn-join-session" class="btn btn-orange w-100 py-3 fw-semibold">
+                                    <span class="btn-text">Join Focus Session</span>
                                     <span class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
                                 </button>
                             </form>
@@ -113,7 +113,7 @@
     </div>
 </div>
 
-<!-- Modal for Room Full / Error Alert on Landing Page -->
+<!-- Modal for Session Capacity Reached / Error Alert on Landing Page -->
 <div class="modal fade" id="landingErrorModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content card-custom p-4 text-center">
@@ -121,8 +121,8 @@
                 <div class="error-modal-icon mb-3">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 </div>
-                <h3 class="h4 fw-bold mb-2" id="landingErrorTitle">Room Full</h3>
-                <p class="text-secondary-custom mb-4" id="landingErrorMessage">This focus room has already reached its maximum capacity of 2 participants.</p>
+                <h3 class="h4 fw-bold mb-2" id="landingErrorTitle">Session Capacity Reached</h3>
+                <p class="text-secondary-custom mb-4" id="landingErrorMessage">This focus session has already reached its maximum capacity of 2 participants.</p>
                 <button type="button" class="btn btn-secondary-custom w-100" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

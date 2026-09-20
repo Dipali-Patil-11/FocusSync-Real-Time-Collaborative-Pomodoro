@@ -48,20 +48,20 @@ window.ModalController = {
         };
 
         // Quick copy in header
-        const quickCopyBtn = document.getElementById('btn-copy-code-quick');
+        const quickCopyBtn = document.getElementById('btn-copy-session-code-quick');
         if (quickCopyBtn) {
             quickCopyBtn.addEventListener('click', () => {
-                const roomCode = document.getElementById('header-room-code')?.textContent;
-                if (roomCode) copyTextToClipboard(roomCode, `Room code ${roomCode} copied!`);
+                const sessionCode = document.getElementById('header-session-code')?.textContent;
+                if (sessionCode) copyTextToClipboard(sessionCode, `Session code ${sessionCode} copied!`);
             });
         }
 
-        // Copy room code in invite modal
-        const modalCopyCodeBtn = document.getElementById('btn-copy-room-code-modal');
+        // Copy session code in invite modal
+        const modalCopyCodeBtn = document.getElementById('btn-copy-session-code-modal');
         if (modalCopyCodeBtn) {
             modalCopyCodeBtn.addEventListener('click', () => {
-                const roomCode = document.getElementById('modal-room-code')?.textContent;
-                if (roomCode) copyTextToClipboard(roomCode, `Room code ${roomCode} copied!`);
+                const sessionCode = document.getElementById('modal-session-code')?.textContent;
+                if (sessionCode) copyTextToClipboard(sessionCode, `Session code ${sessionCode} copied!`);
             });
         }
 
@@ -69,9 +69,9 @@ window.ModalController = {
         const modalCopyLinkBtn = document.getElementById('btn-copy-invite-link');
         if (modalCopyLinkBtn) {
             modalCopyLinkBtn.addEventListener('click', () => {
-                const roomCode = document.getElementById('modal-room-code')?.textContent;
-                if (roomCode) {
-                    const inviteUrl = `${window.location.origin}/room/${roomCode}`;
+                const sessionCode = document.getElementById('modal-session-code')?.textContent;
+                if (sessionCode) {
+                    const inviteUrl = `${window.location.origin}/session/${sessionCode}`;
                     copyTextToClipboard(inviteUrl, 'Invite link copied to clipboard!');
                 }
             });
@@ -82,10 +82,10 @@ window.ModalController = {
         const inviteModalEl = document.getElementById('inviteModal');
         if (inviteModalEl) {
             inviteModalEl.addEventListener('show.bs.modal', () => {
-                const roomCode = document.querySelector('.room-container')?.dataset.roomCode;
-                const modalCodeEl = document.getElementById('modal-room-code');
-                if (roomCode && modalCodeEl) {
-                    modalCodeEl.textContent = roomCode;
+                const sessionCode = document.querySelector('.session-container')?.dataset.sessionCode;
+                const modalCodeEl = document.getElementById('modal-session-code');
+                if (sessionCode && modalCodeEl) {
+                    modalCodeEl.textContent = sessionCode;
                 }
             });
         }
@@ -103,8 +103,8 @@ window.ModalController = {
 
         settingsForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const roomCode = document.querySelector('.room-container')?.dataset.roomCode;
-            if (!roomCode) return;
+            const sessionCode = document.querySelector('.session-container')?.dataset.sessionCode;
+            if (!sessionCode) return;
 
             const focusVal = parseInt(document.getElementById('setting-focus').value);
             const shortVal = parseInt(document.getElementById('setting-short-break').value);
@@ -116,7 +116,7 @@ window.ModalController = {
             window.NotificationManager.setSoundEnabled(soundVal);
 
             window.SocketClient.emit('settings_updated', {
-                room_code: roomCode,
+                session_code: sessionCode,
                 focus_duration: focusVal,
                 short_break_duration: shortVal,
                 long_break_duration: longVal,

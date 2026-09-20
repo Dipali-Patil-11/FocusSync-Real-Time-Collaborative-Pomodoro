@@ -5,7 +5,7 @@ from app.config import Config
 from app.utilities.db import init_db
 from app.routes.main_routes import main_bp
 from app.routes.api_routes import api_bp
-from app.sockets.room_events import register_room_events
+from app.sockets.session_events import register_session_events
 from app.sockets.timer_events import register_timer_events
 from app.sockets.presence_events import register_presence_events
 
@@ -33,7 +33,7 @@ def create_app(config_class=Config):
     socketio.init_app(app, cors_allowed_origins=origins)
 
     # Register SocketIO event handlers
-    register_room_events(socketio)
+    register_session_events(socketio)
     register_timer_events(socketio)
     register_presence_events(socketio)
 

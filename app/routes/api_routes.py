@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.utilities.db import get_repository, get_db_mode
-from app.services.room_service import RoomService
+from app.services.session_service import SessionService
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -12,30 +12,30 @@ def health():
         "database_mode": get_db_mode()
     }), 200
 
-@api_bp.route('/rooms/create', methods=['POST'])
-def create_room():
+@api_bp.route('/sessions/create', methods=['POST'])
+def create_session():
     data = request.get_json() or {}
     username = data.get('username')
 
     repo = get_repository()
-    room_service = RoomService(repo)
-    success, message, result = room_service.create_room(username)
+    session_service = SessionService(repo)
+    success, message, result = session_service.create_session(username)
 
     if not success:
         return jsonify({"success": False, "message": message}), 400
 
     return jsonify({"success": True, "message": message, "data": result}), 201
 
-@api_bp.route('/rooms/join', methods=['POST'])
-def join_room():
+@api_bp.route('/sessions/join', methods=['POST'])
+def join_session():
     data = request.get_json() or {}
-    room_code = data.get('room_code')
+    session_code = data.get('session_code')
     username = data.get('username')
     token = data.get('participant_token')
 
     repo = get_repository()
-    room_service = RoomService(repo)
-    success, message, result, status_code = room_service.join_room(room_code, username, token)
+    session_service = SessionService(repo)
+    success, message, result, status_code = session_service.join_session(session_code, username, token)
 
     if not success:
         http_code = 404 if status_code == 'NOT_FOUND' else (409 if status_code == 'FULL' else 400)
@@ -47,13 +47,13 @@ def join_room():
 
     return jsonify({"success": True, "message": message, "data": result}), 200
 
-@api_bp.route('/rooms/<room_code>', methods=['GET'])
-def get_room_info(room_code):
+@api_bp.route('/sessions/<session_code>', methods=['GET'])
+def get_session_info(session_code):
     repo = get_repository()
-    room_service = RoomService(repo)
-    state = room_service.get_room_state(room_code.upper())
+    session_service = SessionService(repo)
+    state = session_service.get_session_state(session_code.upper())
 
     if not state:
-        return jsonify({"success": False, "message": "Room not found"}), 404
+        return jsonify({"success": False, "message": "Session not found"}), 404
 
     return jsonify({"success": True, "data": state}), 200

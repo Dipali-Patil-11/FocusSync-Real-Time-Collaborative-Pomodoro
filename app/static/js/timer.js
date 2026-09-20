@@ -81,9 +81,9 @@ window.TimerRenderer = {
         // Check completion trigger
         if (remaining <= 0 && this.timerState.status === 'RUNNING' && !this.soundPlayed) {
             this.soundPlayed = true;
-            const roomCode = document.querySelector('.room-container')?.dataset.roomCode;
-            if (roomCode && window.SocketClient) {
-                window.SocketClient.emit('timer_complete', { room_code: roomCode });
+            const sessionCode = document.querySelector('.session-container')?.dataset.sessionCode;
+            if (sessionCode && window.SocketClient) {
+                window.SocketClient.emit('timer_complete', { session_code: sessionCode });
             }
         }
 

@@ -6,7 +6,7 @@
     <title>{% block title %}FocusSync — Realtime Collaborative Pomodoro{% endblock %}</title>
     
     <!-- Meta tags for SEO -->
-    <meta name="description" content="Share one synchronized Pomodoro timer with a partner in real-time. Private two-person focus rooms for ultimate productivity and accountability.">
+    <meta name="description" content="Share a synchronized Pomodoro timer with another participant in real-time. Dedicated two-person focus sessions for ultimate productivity and accountability.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,7 +41,7 @@
     <script src="{{ url_for('static', filename='js/socket.js') }}"></script>
     <script src="{{ url_for('static', filename='js/timer.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/session.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     {% block scripts %}{% endblock %}

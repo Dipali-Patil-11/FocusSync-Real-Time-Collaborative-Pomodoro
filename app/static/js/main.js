@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if on Room page
-    if (document.querySelector('.room-container')) {
-        window.RoomManager.init();
+    // Check if on Session page
+    if (document.querySelector('.session-container')) {
+        window.SessionManager.init();
         return;
     }
 
@@ -15,14 +15,14 @@ function initLandingPage() {
     const error = urlParams.get('error');
     const code = urlParams.get('code');
 
-    if (error === 'room_not_found') {
-        window.NotificationManager.showToast(`Room ${code || ''} not found. Please check the room code.`, 'error');
+    if (error === 'session_not_found') {
+        window.NotificationManager.showToast(`Session ${code || ''} not found. Please check the session code.`, 'error');
     } else if (error === 'name_required') {
-        window.NotificationManager.showToast('Display name is required to join a room.', 'error');
+        window.NotificationManager.showToast('Display name is required to join a session.', 'error');
     }
 
-    // Auto uppercase room code input
-    const joinCodeInput = document.getElementById('join-room-code');
+    // Auto uppercase session code input
+    const joinCodeInput = document.getElementById('join-session-code');
     if (joinCodeInput) {
         joinCodeInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase();
@@ -39,13 +39,13 @@ function initLandingPage() {
         }
     }
 
-    // Create Room Form Submission
-    const createForm = document.getElementById('create-room-form');
+    // Create Session Form Submission
+    const createForm = document.getElementById('create-session-form');
     if (createForm) {
         createForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const usernameInput = document.getElementById('create-username');
-            const btn = document.getElementById('btn-create-room');
+            const btn = document.getElementById('btn-create-session');
             const alertEl = document.getElementById('create-error-alert');
 
             alertEl.classList.add('d-none');
@@ -59,40 +59,40 @@ function initLandingPage() {
 
             setLoading(btn, true);
 
-            const res = await window.ApiClient.createRoom(username);
+            const res = await window.ApiClient.createSession(username);
             setLoading(btn, false);
 
             if (res.success && res.data) {
-                const roomCode = res.data.room_code;
+                const sessionCode = res.data.session_code;
                 const token = res.data.participant_token;
 
-                sessionStorage.setItem(`focussync_token_${roomCode}`, token);
-                sessionStorage.setItem(`focussync_user_${roomCode}`, username);
+                sessionStorage.setItem(`focussync_token_${sessionCode}`, token);
+                sessionStorage.setItem(`focussync_user_${sessionCode}`, username);
                 localStorage.setItem('focussync_username', username);
 
-                window.location.href = `/room/${roomCode}`;
+                window.location.href = `/session/${sessionCode}`;
             } else {
-                alertEl.textContent = res.message || 'Failed to create room.';
+                alertEl.textContent = res.message || 'Failed to create session.';
                 alertEl.classList.remove('d-none');
             }
         });
     }
 
-    // Join Room Form Submission
-    const joinForm = document.getElementById('join-room-form');
+    // Join Session Form Submission
+    const joinForm = document.getElementById('join-session-form');
     if (joinForm) {
         joinForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const usernameInput = document.getElementById('join-username');
-            const codeInput = document.getElementById('join-room-code');
-            const btn = document.getElementById('btn-join-room');
+            const codeInput = document.getElementById('join-session-code');
+            const btn = document.getElementById('btn-join-session');
             const alertEl = document.getElementById('join-error-alert');
 
             alertEl.classList.add('d-none');
             const username = usernameInput.value.trim();
-            const roomCode = codeInput.value.trim().toUpperCase();
+            const sessionCode = codeInput.value.trim().toUpperCase();
 
-            if (!username || !roomCode) {
+            if (!username || !sessionCode) {
                 alertEl.textContent = 'Please fill in all fields.';
                 alertEl.classList.remove('d-none');
                 return;
@@ -100,25 +100,25 @@ function initLandingPage() {
 
             setLoading(btn, true);
 
-            const res = await window.ApiClient.joinRoom(roomCode, username);
+            const res = await window.ApiClient.joinSession(sessionCode, username);
             setLoading(btn, false);
 
             if (res.success && res.data) {
                 const token = res.data.participant_token;
 
-                sessionStorage.setItem(`focussync_token_${roomCode}`, token);
-                sessionStorage.setItem(`focussync_user_${roomCode}`, username);
+                sessionStorage.setItem(`focussync_token_${sessionCode}`, token);
+                sessionStorage.setItem(`focussync_user_${sessionCode}`, username);
                 localStorage.setItem('focussync_username', username);
 
-                window.location.href = `/room/${roomCode}`;
+                window.location.href = `/session/${sessionCode}`;
             } else {
                 if (res.error_code === 'FULL') {
-                    showLandingErrorModal('Room Full', `Focus room ${roomCode} has reached its maximum capacity of 2 participants.`);
+                    showLandingErrorModal('Session Capacity Reached', `Focus session ${sessionCode} has reached its maximum capacity of 2 participants.`);
                 } else if (res.error_code === 'NOT_FOUND') {
-                    alertEl.textContent = `Focus room ${roomCode} does not exist. Please check the code.`;
+                    alertEl.textContent = `Focus session ${sessionCode} does not exist. Please check the code.`;
                     alertEl.classList.remove('d-none');
                 } else {
-                    alertEl.textContent = res.message || 'Failed to join room.';
+                    alertEl.textContent = res.message || 'Failed to join session.';
                     alertEl.classList.remove('d-none');
                 }
             }

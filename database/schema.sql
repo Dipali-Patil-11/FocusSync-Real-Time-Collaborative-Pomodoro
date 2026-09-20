@@ -1,18 +1,18 @@
 -- FocusSync PostgreSQL / Supabase Schema
 
--- Rooms table
-CREATE TABLE IF NOT EXISTS rooms (
-    room_code VARCHAR(10) PRIMARY KEY,
+-- Sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+    session_code VARCHAR(10) PRIMARY KEY,
     creator_token VARCHAR(64) NOT NULL,
     status VARCHAR(20) DEFAULT 'ACTIVE',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Participants table (Max 2 per room)
+-- Participants table (Max 2 per session)
 CREATE TABLE IF NOT EXISTS participants (
     participant_token VARCHAR(64) PRIMARY KEY,
-    room_code VARCHAR(10) NOT NULL REFERENCES rooms(room_code) ON DELETE CASCADE,
+    session_code VARCHAR(10) NOT NULL REFERENCES sessions(session_code) ON DELETE CASCADE,
     username VARCHAR(50) NOT NULL,
     slot INT NOT NULL,
     is_online BOOLEAN DEFAULT TRUE,
@@ -21,12 +21,12 @@ CREATE TABLE IF NOT EXISTS participants (
     last_seen TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_participants_room_code ON participants(room_code);
+CREATE INDEX IF NOT EXISTS idx_participants_session_code ON participants(session_code);
 CREATE INDEX IF NOT EXISTS idx_participants_sid ON participants(sid);
 
 -- Timers table
 CREATE TABLE IF NOT EXISTS timers (
-    room_code VARCHAR(10) PRIMARY KEY REFERENCES rooms(room_code) ON DELETE CASCADE,
+    session_code VARCHAR(10) PRIMARY KEY REFERENCES sessions(session_code) ON DELETE CASCADE,
     mode VARCHAR(20) NOT NULL DEFAULT 'FOCUS',
     status VARCHAR(20) NOT NULL DEFAULT 'IDLE',
     duration INT NOT NULL DEFAULT 1500,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS timers (
 
 -- Settings table
 CREATE TABLE IF NOT EXISTS settings (
-    room_code VARCHAR(10) PRIMARY KEY REFERENCES rooms(room_code) ON DELETE CASCADE,
+    session_code VARCHAR(10) PRIMARY KEY REFERENCES sessions(session_code) ON DELETE CASCADE,
     focus_duration INT NOT NULL DEFAULT 25,
     short_break_duration INT NOT NULL DEFAULT 5,
     long_break_duration INT NOT NULL DEFAULT 15,
