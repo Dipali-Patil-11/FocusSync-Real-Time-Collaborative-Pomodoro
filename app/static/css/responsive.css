@@ -12,6 +12,12 @@
     .hero-title {
         font-size: 3.25rem;
     }
+
+    .participants-list {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 0.75rem !important;
+    }
 }
 
 /* iPad / Tablet Landscape & Small Laptops (992px to 1199px) */
@@ -22,6 +28,12 @@
 
     .navbar-session .container-fluid {
         gap: 0.75rem;
+    }
+
+    .participants-list {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem !important;
     }
 }
 
@@ -39,12 +51,21 @@
 
     .participants-list {
         display: grid !important;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem !important;
     }
 
     .auth-card {
         max-width: 520px;
+    }
+}
+
+/* Mobile & Small Tablets (<= 768px) */
+@media (max-width: 767.98px) {
+    .participants-list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
     }
 }
 

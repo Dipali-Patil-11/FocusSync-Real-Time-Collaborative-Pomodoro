@@ -113,7 +113,7 @@ function initLandingPage() {
                 window.location.href = `/session/${sessionCode}`;
             } else {
                 if (res.error_code === 'FULL') {
-                    showLandingErrorModal('Session Capacity Reached', `Focus session ${sessionCode} has reached its maximum capacity of 2 participants.`);
+                    showLandingErrorModal('Session Capacity Reached', `Focus session ${sessionCode} has reached its maximum capacity of 5 participants.`);
                 } else if (res.error_code === 'NOT_FOUND') {
                     alertEl.textContent = `Focus session ${sessionCode} does not exist. Please check the code.`;
                     alertEl.classList.remove('d-none');

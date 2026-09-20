@@ -6,7 +6,7 @@ class Participant:
     participant_token: str
     session_code: str
     username: str
-    slot: int  # 1 or 2
+    slot: int  # 1 to 5 (MAX_PARTICIPANTS)
     is_online: bool = True
     sid: str = None
     joined_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())

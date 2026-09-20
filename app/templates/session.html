@@ -3,7 +3,7 @@
 {% block title %}Focus Session {{ session_code }} — FocusSync{% endblock %}
 
 {% block content %}
-<div class="session-container min-vh-100 d-flex flex-column" data-session-code="{{ session_code }}">
+<div class="session-container min-vh-100 d-flex flex-column" data-session-code="{{ session_code }}" data-max-participants="5">
     <!-- Top Header Navigation (Single Logo & Theme Toggle) -->
     <header class="navbar-session py-3 px-3 px-md-4 border-bottom-custom bg-card">
         <div class="container-fluid d-flex align-items-center justify-content-between">
@@ -132,7 +132,7 @@
                 <div class="card-custom p-4 mb-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h3 class="h6 fw-bold mb-0">Participants</h3>
-                        <span class="badge bg-input border-custom text-orange font-monospace px-2.5 py-1 rounded-pill" id="participants-count">1/2</span>
+                        <span class="badge bg-input border-custom text-orange font-monospace px-2.5 py-1 rounded-pill" id="participants-count">1/5</span>
                     </div>
 
                     <div class="participants-list d-flex flex-column gap-3" id="participants-container">
@@ -143,7 +143,7 @@
                 <!-- How It Works Card -->
                 <div class="card-custom p-4">
                     <h4 class="h6 fw-bold mb-2">How it works</h4>
-                    <p class="text-secondary-custom small mb-2">Both participants share real-time control over this session.</p>
+                    <p class="text-secondary-custom small mb-2">All participants share real-time control over this session.</p>
                     <ul class="text-secondary-custom small ps-3 mb-0">
                         <li>Actions take effect on both devices instantly.</li>
                         <li>Timer calculations run server-side for perfect sync.</li>
@@ -285,7 +285,7 @@
 
                 <div class="badge bg-input border-custom text-secondary-custom rounded-pill px-3 py-2 small">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1 text-orange"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 1-0 7.75"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                    Dedicated session — Maximum 2 people
+                    Dedicated session — Maximum 5 people
                 </div>
             </div>
         </div>
@@ -303,7 +303,7 @@
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 </div>
                 <h4 class="fw-bold mb-2">Session Capacity Reached</h4>
-                <p class="text-secondary-custom mb-4">This focus session already has 2 active participants. Maximum session capacity is 2 people.</p>
+                <p class="text-secondary-custom mb-4">This focus session already has 5 active participants. Maximum session capacity is 5 people.</p>
                 <a href="/" class="btn btn-orange w-100 py-2.5 fw-semibold text-decoration-none">Return to Landing Page</a>
             </div>
         </div>

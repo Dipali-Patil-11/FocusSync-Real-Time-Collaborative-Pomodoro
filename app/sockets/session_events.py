@@ -49,6 +49,7 @@ def register_session_events(socketio):
             'session': updated_state['session'],
             'timer': updated_state['timer'],
             'settings': updated_state['settings'],
+            'max_participants': updated_state.get('max_participants', 5),
             'participants': updated_state['participants']
         })
 
@@ -59,6 +60,7 @@ def register_session_events(socketio):
             'username': username,
             'session_code': session_code,
             'participant': result['participant'],
+            'max_participants': updated_state.get('max_participants', 5),
             'participants': updated_state['participants'],
             'title': f"{username} joined the focus session",
             'message': f"{username} joined the focus session"
@@ -85,11 +87,13 @@ def register_session_events(socketio):
             leave_room(s_code)
             state = session_service.get_session_state(s_code)
             remaining_pts = state['participants'] if state else []
+            max_p = state.get('max_participants', 5) if state else 5
             emit('participant_left', {
                 'event_id': str(uuid.uuid4()),
                 'participant_id': participant_token,
                 'username': username,
                 'session_code': s_code,
+                'max_participants': max_p,
                 'participants': remaining_pts,
                 'title': f"{username} left the focus session",
                 'message': f"{username} left the focus session"

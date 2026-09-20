@@ -2,12 +2,16 @@ window.SessionManager = {
     sessionCode: null,
     participantToken: null,
     username: null,
+    maxParticipants: 5,
 
     init: function() {
         const container = document.querySelector('.session-container');
         if (!container) return; // Not on session page
 
         this.sessionCode = container.dataset.sessionCode;
+        if (container.dataset.maxParticipants) {
+            this.maxParticipants = parseInt(container.dataset.maxParticipants, 10) || 5;
+        }
         this.participantToken = sessionStorage.getItem(`focussync_token_${this.sessionCode}`);
         this.username = sessionStorage.getItem(`focussync_user_${this.sessionCode}`) || localStorage.getItem('focussync_username');
 
@@ -94,6 +98,9 @@ window.SessionManager = {
 
         // Socket Events
         window.SocketClient.on('session_state', (data) => {
+            if (data.max_participants) {
+                this.maxParticipants = data.max_participants;
+            }
             if (data.participant_token) {
                 this.participantToken = data.participant_token;
                 sessionStorage.setItem(`focussync_token_${this.sessionCode}`, data.participant_token);
@@ -111,6 +118,7 @@ window.SessionManager = {
         });
 
         window.SocketClient.on('participant_joined', (data) => {
+            if (data.max_participants) this.maxParticipants = data.max_participants;
             if (data.participants) this.renderParticipants(data.participants);
             const msg = data.message || `${data.username} joined the focus session`;
             this.setNotification(msg);
@@ -125,6 +133,7 @@ window.SessionManager = {
         });
 
         window.SocketClient.on('participant_left', (data) => {
+            if (data.max_participants) this.maxParticipants = data.max_participants;
             if (data.participants) this.renderParticipants(data.participants);
             const msg = data.message || `${data.username} left the focus session`;
             this.setNotification(msg);
@@ -226,7 +235,7 @@ window.SessionManager = {
         if (!container) return;
 
         if (countEl) {
-            countEl.textContent = `${participants.length}/2`;
+            countEl.textContent = `${participants.length}/${this.maxParticipants || 5}`;
         }
 
         container.innerHTML = '';

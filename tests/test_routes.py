@@ -29,12 +29,13 @@ def test_create_and_join_session_api(client):
     assert res["success"] is True
     code = res["data"]["session_code"]
 
-    # Join 2nd participant
-    rv2 = client.post('/api/sessions/join', json={"session_code": code, "username": "Bob"})
-    assert rv2.status_code == 200
-    assert rv2.get_json()["success"] is True
+    # Join participants 2, 3, 4, 5 -> 200 OK
+    for i in range(2, 6):
+        rv_i = client.post('/api/sessions/join', json={"session_code": code, "username": f"User{i}"})
+        assert rv_i.status_code == 200
+        assert rv_i.get_json()["success"] is True
 
-    # Join 3rd participant -> 409 FULL
-    rv3 = client.post('/api/sessions/join', json={"session_code": code, "username": "Charlie"})
-    assert rv3.status_code == 409
-    assert rv3.get_json()["error_code"] == "FULL"
+    # Join 6th participant -> 409 FULL
+    rv6 = client.post('/api/sessions/join', json={"session_code": code, "username": "User6"})
+    assert rv6.status_code == 409
+    assert rv6.get_json()["error_code"] == "FULL"

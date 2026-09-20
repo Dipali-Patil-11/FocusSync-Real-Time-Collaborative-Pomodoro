@@ -94,13 +94,14 @@ class SessionService:
                         "participants": [pt.to_dict() for pt in self.repo.get_participants_by_session(code_msg)]
                     }, 'OK'
 
-        # Strict 2 participant capacity check
+        # Strict participant capacity check
         if len(existing_participants) >= MAX_PARTICIPANTS:
             return False, f"Session {code_msg} is full (Maximum {MAX_PARTICIPANTS} participants).", None, 'FULL'
 
-        # Assign available slot (1 or 2)
+        # Assign lowest available slot (1 to MAX_PARTICIPANTS)
         used_slots = {p.slot for p in existing_participants}
-        slot = 1 if 1 not in used_slots else 2
+        available_slots = set(range(1, MAX_PARTICIPANTS + 1)) - used_slots
+        slot = min(available_slots)
 
         new_token = str(uuid.uuid4())
         participant = Participant(
@@ -122,6 +123,7 @@ class SessionService:
             "session": session.to_dict(),
             "timer": timer.to_dict(),
             "settings": settings.to_dict(),
+            "max_participants": MAX_PARTICIPANTS,
             "participants": [pt.to_dict() for pt in self.repo.get_participants_by_session(code_msg)]
         }, 'OK'
 
@@ -138,7 +140,8 @@ class SessionService:
             "session": session.to_dict(),
             "participants": [p.to_dict() for p in participants],
             "timer": timer.to_dict(),
-            "settings": settings.to_dict()
+            "settings": settings.to_dict(),
+            "max_participants": MAX_PARTICIPANTS
         }
 
     def leave_session(self, participant_token: str) -> Tuple[bool, str, Optional[str]]:
