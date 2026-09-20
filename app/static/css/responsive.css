@@ -123,6 +123,16 @@
         font-size: 0.85rem;
     }
 
+    .session-counter-wrapper {
+        max-width: 270px;
+        margin-top: 0.5rem;
+    }
+
+    .session-counter-text {
+        font-size: 0.785rem;
+        line-height: 1.3;
+    }
+
     .navbar-session .btn-sm {
         width: 34px;
         height: 34px;

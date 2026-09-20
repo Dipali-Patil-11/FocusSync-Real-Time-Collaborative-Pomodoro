@@ -285,6 +285,23 @@
     color: var(--color-text-primary);
 }
 
+/* Cycle Info Helper Text (Outside & Below Circular Timer) */
+.session-counter-wrapper {
+    max-width: 320px;
+    margin: 0.75rem auto 0 auto;
+    padding: 0 0.5rem;
+}
+
+.session-counter-text {
+    font-size: 0.825rem;
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-align: center;
+    word-break: break-word;
+    transition: color 0.25s ease;
+}
+
 /* Focus Tracker Progress Card */
 .tracker-stat-row {
     background-color: var(--color-input);
