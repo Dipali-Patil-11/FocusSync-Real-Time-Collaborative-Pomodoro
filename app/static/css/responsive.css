@@ -1,13 +1,16 @@
-@media (max-width: 768px) {
-    .timer-display-wrapper {
-        width: 230px;
-        height: 230px;
-    }
-    
-    .timer-clock-text {
-        font-size: 2.5rem;
+/* Tablet & Desktop Adjustments (<= 992px) */
+@media (max-width: 992px) {
+    .hero-title {
+        font-size: 2.75rem;
     }
 
+    .navbar-session .container-fluid {
+        gap: 0.75rem;
+    }
+}
+
+/* Medium Tablets & Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
     .hero-title {
         font-size: 2.25rem;
     }
@@ -18,20 +21,93 @@
 
     .session-code-pill {
         font-size: 0.85rem;
+        padding: 0.25rem 0.6rem !important;
+    }
+
+    .connection-status-pill {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.6rem !important;
+    }
+
+    /* Mode selector pill wrap/overflow protection */
+    .mode-selector-pills {
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mode-btn.btn-pill {
+        padding: 0.35rem 0.85rem;
+        font-size: 0.85rem;
     }
 }
 
+/* Small Mobile Viewports (<= 576px) */
 @media (max-width: 576px) {
-    .timer-display-wrapper {
-        width: 200px;
-        height: 200px;
+    .navbar-landing, .navbar-session {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
 
-    .timer-clock-text {
-        font-size: 2.2rem;
+    .hero-title {
+        font-size: 1.85rem;
+    }
+
+    .hero-desc {
+        font-size: 0.95rem;
     }
 
     .btn-primary-control {
         padding: 0.6rem 1.25rem !important;
+    }
+
+    /* Header session action buttons compact styling */
+    .navbar-session .btn-sm {
+        padding: 0.35rem 0.5rem;
+    }
+
+    /* Modals mobile scroll & padding safety */
+    .modal-dialog {
+        margin: 0.75rem;
+    }
+
+    .modal-content {
+        padding: 1.25rem !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .duration-counter-row {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .duration-counter-row .counter-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+/* Extra Small Viewports (<= 380px) */
+@media (max-width: 380px) {
+    .brand-name {
+        font-size: 1.1rem;
+    }
+
+    .session-code-pill span:first-child {
+        display: none; /* Hide 'Session:' text label on very small screens to fit code & buttons */
+    }
+
+    .timer-controls-row {
+        gap: 0.5rem !important;
+    }
+
+    .btn-secondary-control {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
     }
 }

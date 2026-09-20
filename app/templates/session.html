@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="session-container min-vh-100 d-flex flex-column" data-session-code="{{ session_code }}">
-    <!-- Top Header Navigation (Single Logo) -->
+    <!-- Top Header Navigation (Single Logo & Theme Toggle) -->
     <header class="navbar-session py-3 px-3 px-md-4 border-bottom-custom bg-card">
         <div class="container-fluid d-flex align-items-center justify-content-between">
             <!-- Left: Logo & Brand -->
             <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
                 <div class="brand-logo-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
@@ -19,11 +19,11 @@
             </a>
 
             <!-- Center: Session Code Pill & Connection Status -->
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
                 <div class="session-code-pill d-flex align-items-center gap-2 px-3 py-1-5 rounded-pill bg-input border-custom">
                     <span class="text-secondary-custom small">Session:</span>
                     <span class="fw-bold font-monospace text-orange" id="header-session-code">{{ session_code }}</span>
-                    <button type="button" class="btn-icon p-0 ms-1" id="btn-copy-session-code-quick" title="Copy Session Code">
+                    <button type="button" class="btn-icon p-0 ms-1" id="btn-copy-session-code-quick" aria-label="Copy Session Code" title="Copy Session Code">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                     </button>
                 </div>
@@ -36,15 +36,33 @@
 
             <!-- Right Actions -->
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-outline-custom" id="btn-share" data-bs-toggle="modal" data-bs-target="#inviteModal">
+                <!-- Theme Toggle Button -->
+                <button type="button" class="btn-theme-toggle" aria-label="Switch theme">
+                    <svg class="theme-icon-sun d-none" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+
+                <button type="button" class="btn btn-sm btn-outline-custom" id="btn-share" data-bs-toggle="modal" data-bs-target="#inviteModal" aria-label="Share Session">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                     <span class="d-none d-sm-inline">Share</span>
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-custom" id="btn-settings" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                <button type="button" class="btn btn-sm btn-outline-custom" id="btn-settings" data-bs-toggle="modal" data-bs-target="#settingsModal" aria-label="Session Settings">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span class="d-none d-sm-inline">Settings</span>
                 </button>
-                <button type="button" class="btn btn-sm btn-danger-custom" id="btn-leave">
+                <button type="button" class="btn btn-sm btn-danger-custom" id="btn-leave" aria-label="Leave Session">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     <span class="d-none d-sm-inline">Leave</span>
                 </button>
@@ -60,13 +78,13 @@
                 <!-- Notification Pill -->
                 <div class="notification-pill-wrapper mb-3">
                     <span class="notification-pill px-3 py-1-5 rounded-pill bg-card border-custom small text-secondary-custom d-inline-flex align-items-center gap-2" id="session-notification-pill">
-                        <span class="pill-dot"></span>
+                        <span class="badge-dot"></span>
                         <span id="notification-text">Welcome to Focus Session {{ session_code }}</span>
                     </span>
                 </div>
 
                 <!-- Mode Selector Pills -->
-                <div class="mode-selector-pills d-inline-flex p-1 bg-card border-custom rounded-pill mb-4" role="group">
+                <div class="mode-selector-pills d-inline-flex p-1 bg-card border-custom rounded-pill mb-4" role="group" aria-label="Timer Mode Selection">
                     <button type="button" class="mode-btn btn-pill active" data-mode="FOCUS">Focus</button>
                     <button type="button" class="mode-btn btn-pill" data-mode="SHORT_BREAK">Short Break</button>
                     <button type="button" class="mode-btn btn-pill" data-mode="LONG_BREAK">Long Break</button>
@@ -92,11 +110,11 @@
 
                     <!-- Main Timer Controls -->
                     <div class="timer-controls-row d-flex align-items-center justify-content-center gap-3 mt-4">
-                        <button type="button" class="btn btn-control btn-secondary-control" id="btn-timer-reset" title="Reset Timer">
+                        <button type="button" class="btn btn-control btn-secondary-control" id="btn-timer-reset" aria-label="Reset Timer" title="Reset Timer">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 2v6h6"></path><path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path></svg>
                         </button>
                         
-                        <button type="button" class="btn btn-control btn-primary-control btn-orange px-4 py-3" id="btn-timer-toggle">
+                        <button type="button" class="btn btn-control btn-primary-control btn-orange px-4 py-3" id="btn-timer-toggle" aria-label="Start or Pause Timer">
                             <span class="d-flex align-items-center gap-2">
                                 <svg id="toggle-icon-play" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                 <svg id="toggle-icon-pause" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" class="d-none"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
@@ -104,7 +122,7 @@
                             </span>
                         </button>
 
-                        <button type="button" class="btn btn-control btn-secondary-control" id="btn-timer-skip" title="Skip Session">
+                        <button type="button" class="btn btn-control btn-secondary-control" id="btn-timer-skip" aria-label="Skip Session" title="Skip Session">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
                         </button>
                     </div>
@@ -147,7 +165,7 @@
         <div class="modal-content card-custom p-4">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold" id="settingsModalLabel">Session Settings</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body py-4">
                 <form id="settings-form">
@@ -160,9 +178,9 @@
                             <div class="text-secondary-custom extra-small">Default: 25 min</div>
                         </div>
                         <div class="counter-controls d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-focus">-</button>
-                            <input type="number" id="setting-focus" class="form-control counter-input input-custom text-center" value="25" min="1" max="60" required>
-                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-focus">+</button>
+                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-focus" aria-label="Decrease focus duration">-</button>
+                            <input type="number" id="setting-focus" class="form-control counter-input input-custom text-center" value="25" min="1" max="60" required aria-label="Focus duration minutes">
+                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-focus" aria-label="Increase focus duration">+</button>
                         </div>
                     </div>
 
@@ -173,9 +191,9 @@
                             <div class="text-secondary-custom extra-small">Default: 5 min</div>
                         </div>
                         <div class="counter-controls d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-short-break">-</button>
-                            <input type="number" id="setting-short-break" class="form-control counter-input input-custom text-center" value="5" min="1" max="30" required>
-                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-short-break">+</button>
+                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-short-break" aria-label="Decrease short break duration">-</button>
+                            <input type="number" id="setting-short-break" class="form-control counter-input input-custom text-center" value="5" min="1" max="30" required aria-label="Short break duration minutes">
+                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-short-break" aria-label="Increase short break duration">+</button>
                         </div>
                     </div>
 
@@ -186,9 +204,9 @@
                             <div class="text-secondary-custom extra-small">Default: 15 min</div>
                         </div>
                         <div class="counter-controls d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-long-break">-</button>
-                            <input type="number" id="setting-long-break" class="form-control counter-input input-custom text-center" value="15" min="1" max="45" required>
-                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-long-break">+</button>
+                            <button type="button" class="btn btn-counter btn-minus" data-target="setting-long-break" aria-label="Decrease long break duration">-</button>
+                            <input type="number" id="setting-long-break" class="form-control counter-input input-custom text-center" value="15" min="1" max="45" required aria-label="Long break duration minutes">
+                            <button type="button" class="btn btn-counter btn-plus" data-target="setting-long-break" aria-label="Increase long break duration">+</button>
                         </div>
                     </div>
 
@@ -200,7 +218,7 @@
                             <div class="text-secondary-custom extra-small">Automatically transition between breaks</div>
                         </div>
                         <div class="form-check form-switch custom-switch">
-                            <input class="form-check-input" type="checkbox" id="setting-auto-start">
+                            <input class="form-check-input" type="checkbox" id="setting-auto-start" aria-label="Auto-start next session">
                         </div>
                     </div>
 
@@ -210,7 +228,7 @@
                             <div class="text-secondary-custom extra-small">Play sound when timer finishes</div>
                         </div>
                         <div class="form-check form-switch custom-switch">
-                            <input class="form-check-input" type="checkbox" id="setting-sound" checked>
+                            <input class="form-check-input" type="checkbox" id="setting-sound" checked aria-label="Sound notifications">
                         </div>
                     </div>
 
@@ -228,11 +246,11 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content card-custom p-4 text-center">
             <div class="modal-header border-0 pb-0 justify-content-end">
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body pt-0 pb-4">
-                <div class="share-icon-wrapper mx-auto mb-3">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                <div class="share-icon-wrapper mx-auto mb-3 text-orange">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                 </div>
                 <h4 class="fw-bold mb-1" id="inviteModalLabel">Invite to Session</h4>
                 <p class="text-secondary-custom small mb-4">Share this session code or link with another participant</p>
@@ -253,7 +271,7 @@
                 </div>
 
                 <div class="badge bg-input border-custom text-secondary-custom rounded-pill px-3 py-2 small">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" class="me-1"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1 text-orange"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     Dedicated session — Maximum 2 people
                 </div>
             </div>
@@ -269,7 +287,7 @@
         <div class="modal-content card-custom p-4 text-center">
             <div class="modal-body">
                 <div class="error-icon-wrapper text-danger mb-3">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 </div>
                 <h4 class="fw-bold mb-2">Session Capacity Reached</h4>
                 <p class="text-secondary-custom mb-4">This focus session already has 2 active participants. Maximum session capacity is 2 people.</p>

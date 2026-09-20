@@ -145,30 +145,30 @@ window.NotificationManager = {
         const container = document.getElementById('toast-container');
         if (!container) return;
 
-        let accentColor = '#FF6B00';
+        let accentColor = 'var(--color-focus)';
         let iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
 
         if (mode === 'FOCUS') {
-            accentColor = '#FF6B00';
+            accentColor = 'var(--color-focus)';
         } else if (mode === 'SHORT_BREAK') {
-            accentColor = '#22C55E';
+            accentColor = 'var(--color-short-break)';
             iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg>';
         } else if (mode === 'LONG_BREAK') {
-            accentColor = '#38BDF8';
+            accentColor = 'var(--color-long-break)';
             iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>';
         } else if (category === 'COMPLETED') {
-            accentColor = '#F59E0B';
+            accentColor = 'var(--color-warning)';
             iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
         } else if (category === 'JOINED') {
-            accentColor = '#22C55E';
+            accentColor = 'var(--color-success)';
             iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>';
         } else if (category === 'LEFT') {
-            accentColor = '#EF4444';
+            accentColor = 'var(--color-danger)';
             iconSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="11" x2="23" y2="11"></line></svg>';
         }
 
         const toastEl = document.createElement('div');
-        toastEl.className = 'toast toast-custom-dark show mb-2';
+        toastEl.className = 'toast toast-custom show mb-2';
         toastEl.style.borderLeft = `4px solid ${accentColor}`;
 
         toastEl.innerHTML = `
@@ -180,7 +180,7 @@ window.NotificationManager = {
                     <div class="fw-bold small text-primary-custom mb-0.5">${title}</div>
                     <div class="extra-small text-secondary-custom">${message}</div>
                 </div>
-                <button type="button" class="btn-close btn-close-white p-1 ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close p-1 ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         `;
 

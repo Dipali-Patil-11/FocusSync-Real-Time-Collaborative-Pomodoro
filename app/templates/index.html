@@ -4,18 +4,36 @@
 
 {% block content %}
 <div class="landing-container min-vh-100 d-flex flex-column">
-    <!-- Navbar / Header (Landing Page Single Logo) -->
+    <!-- Navbar / Header (Landing Page Single Logo & Theme Toggle) -->
     <header class="navbar-landing py-4 px-4 px-md-5">
-        <div class="container-fluid d-flex align-items-center">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
             <a href="/" class="d-flex align-items-center gap-2 text-decoration-none">
                 <div class="brand-logo-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
                 </div>
                 <span class="brand-name">FocusSync</span>
             </a>
+
+            <!-- Theme Toggle Button -->
+            <button type="button" class="btn-theme-toggle" aria-label="Switch theme">
+                <svg class="theme-icon-sun d-none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
         </div>
     </header>
 
@@ -31,26 +49,26 @@
                     Focus together.<br>
                     <span class="text-orange">Stay in sync.</span>
                 </h1>
-                <p class="hero-desc mb-4">
+                <p class="hero-desc mb-4 text-secondary-custom">
                     Share a synchronized Pomodoro timer with another participant. Start together, take breaks together, stay accountable.
                 </p>
                 
                 <div class="hero-features d-flex flex-column gap-3 mb-4">
                     <div class="d-flex align-items-center gap-3 feature-item">
                         <div class="feature-icon-wrapper">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <span>Real-time synchronization across devices</span>
                     </div>
                     <div class="d-flex align-items-center gap-3 feature-item">
                         <div class="feature-icon-wrapper">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <span>Shared timer controls (Start, Pause, Reset, Skip)</span>
                     </div>
                     <div class="d-flex align-items-center gap-3 feature-item">
                         <div class="feature-icon-wrapper">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <span>Dedicated two-person focus sessions</span>
                     </div>
@@ -62,13 +80,13 @@
                 <div class="card-custom auth-card p-4 p-md-5">
                     <!-- Tab Switcher -->
                     <div class="nav nav-pills custom-tab-pills mb-4" id="sessionTabs" role="tablist">
-                        <button class="nav-link active flex-fill" id="create-tab" data-bs-toggle="pill" data-bs-target="#create-pane" type="button" role="tab">Create Session</button>
-                        <button class="nav-link flex-fill" id="join-tab" data-bs-toggle="pill" data-bs-target="#join-pane" type="button" role="tab">Join Session</button>
+                        <button class="nav-link active flex-fill" id="create-tab" data-bs-toggle="pill" data-bs-target="#create-pane" type="button" role="tab" aria-controls="create-pane" aria-selected="true">Create Session</button>
+                        <button class="nav-link flex-fill" id="join-tab" data-bs-toggle="pill" data-bs-target="#join-pane" type="button" role="tab" aria-controls="join-pane" aria-selected="false">Join Session</button>
                     </div>
 
                     <div class="tab-content" id="sessionTabsContent">
                         <!-- Create Session Tab -->
-                        <div class="tab-pane fade show active" id="create-pane" role="tabpanel">
+                        <div class="tab-pane fade show active" id="create-pane" role="tabpanel" aria-labelledby="create-tab">
                             <h2 class="h5 fw-bold mb-2">Create a Dedicated Focus Session</h2>
                             <p class="text-secondary-custom small mb-4">Start a new session and invite another participant to join.</p>
 
@@ -86,7 +104,7 @@
                         </div>
 
                         <!-- Join Session Tab -->
-                        <div class="tab-pane fade" id="join-pane" role="tabpanel">
+                        <div class="tab-pane fade" id="join-pane" role="tabpanel" aria-labelledby="join-tab">
                             <h2 class="h5 fw-bold mb-2">Join an Existing Session</h2>
                             <p class="text-secondary-custom small mb-4">Enter your name and the 6-character session code.</p>
 
@@ -118,12 +136,12 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content card-custom p-4 text-center">
             <div class="modal-body">
-                <div class="error-modal-icon mb-3">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                <div class="error-modal-icon mb-3 text-danger">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 </div>
                 <h3 class="h4 fw-bold mb-2" id="landingErrorTitle">Session Capacity Reached</h3>
                 <p class="text-secondary-custom mb-4" id="landingErrorMessage">This focus session has already reached its maximum capacity of 2 participants.</p>
-                <button type="button" class="btn btn-secondary-custom w-100" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-outline-custom w-100" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
